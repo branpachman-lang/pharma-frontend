@@ -1,0 +1,21 @@
+.shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-rows: 64px minmax(calc(100vh - 64px), auto);
+  grid-template-areas:
+    "header header"
+    "sidebar contenido";
+}
+
+.shell.colapsado {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
+.header { grid-area: header; }
+.sidebar { grid-area: sidebar; overflow: hidden; }
+.contenido {
+  grid-area: contenido;
+  min-width: 0;
+  padding: 24px;
+  background: #f4f6fa;
+}

@@ -1,0 +1,39 @@
+<section>
+  <h2>{{ esEdicion() ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+
+  @if (error()) {
+    <p class="alerta">{{ error() }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="formulario">
+    <label for="nombre">Nombre</label>
+    <input id="nombre" formControlName="nombre" maxlength="50" />
+
+    @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small class="error">Escribe un nombre de 3 a 50 caracteres.</small>
+    }
+    @if (erroresServidor()['nombre']; as mensaje) {
+      <small class="error">{{ mensaje }}</small>
+    }
+
+    <label for="descripcion">Descripción</label>
+    <textarea id="descripcion" formControlName="descripcion"
+              maxlength="200" rows="3"></textarea>
+
+    @if (form.controls.descripcion.touched && form.controls.descripcion.invalid) {
+      <small class="error">La descripción admite hasta 200 caracteres.</small>
+    }
+
+    <label class="estado">
+      <input type="checkbox" formControlName="estado" />
+      Activo
+    </label>
+
+    <div class="acciones">
+      <a routerLink="/categorias" class="boton">Cancelar</a>
+      <button type="submit" class="boton principal" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>

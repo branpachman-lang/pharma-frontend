@@ -1,0 +1,7 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, "Segoe UI", sans-serif;
+  color: #1f2937;
+}
+h2 { color: #0f2e5c; }
