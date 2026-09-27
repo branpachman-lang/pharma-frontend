@@ -1,0 +1,21 @@
+.encabezado { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.controles { display: flex; align-items: center; gap: 10px; margin: 12px 0 18px; flex-wrap: wrap; }
+.controles input { padding: 9px; width: min(100%, 390px); }
+.controles select { padding: 9px; }
+.tabla-contenedor { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: white; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e3e8f0; }
+th { background: #0f2e5c; color: white; white-space: nowrap; }
+.orden { border: 0; background: transparent; color: inherit; font: inherit; font-weight: 700; cursor: pointer; padding: 0; }
+.orden:hover { text-decoration: underline; }
+.acciones { white-space: nowrap; }
+.boton { display: inline-block; padding: 7px 10px; margin-right: 6px; border: 1px solid #cbd5e1;
+  border-radius: 6px; background: white; color: #1f2937; text-decoration: none; cursor: pointer; font: inherit; }
+.boton:disabled { opacity: .6; cursor: not-allowed; }
+.principal { background: #0f2e5c; color: white; }
+.peligro { border-color: #b42318; color: #b42318; }
+.error { padding: 12px; background: #fef3f2; color: #b42318; }
+.badge { padding: 4px 10px; border-radius: 20px; background: #dcfce7; color: #166534; }
+.badge.inactivo { background: #f1f5f9; color: #64748b; }
+.vacio { text-align: center; color: #64748b; }
+.paginacion { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 16px; flex-wrap: wrap; }

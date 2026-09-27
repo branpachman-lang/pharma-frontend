@@ -1,0 +1,79 @@
+<section>
+  <div class="encabezado">
+    <h2>Clientes</h2>
+    <a routerLink="nuevo" class="boton principal">+ Nuevo cliente</a>
+  </div>
+
+  <div class="controles">
+    <input
+      type="search"
+      placeholder="Buscar DNI, nombres o apellidos en esta página"
+      aria-label="Buscar clientes en la página actual"
+      [value]="filtro()"
+      (input)="filtro.set($any($event.target).value)"
+    />
+    <label for="tamanio">Filas por página</label>
+    <select id="tamanio" [value]="tamanio()" (change)="cambiarTamanio($event)">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="20">20</option>
+    </select>
+  </div>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p>Cargando clientes...</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="orden" (click)="ordenar('dni')"
+                [attr.aria-label]="'Ordenar por DNI ' + (ordenarPor() === 'dni' ? (direccion() === 'asc' ? 'descendente' : 'ascendente') : 'ascendente')">
+                DNI {{ ordenarPor() === 'dni' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}
+              </button>
+            </th>
+            <th>
+              <button type="button" class="orden" (click)="ordenar('apellidos')"
+                [attr.aria-label]="'Ordenar por apellidos ' + (ordenarPor() === 'apellidos' ? (direccion() === 'asc' ? 'descendente' : 'ascendente') : 'ascendente')">
+                Apellidos y nombres {{ ordenarPor() === 'apellidos' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}
+              </button>
+            </th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of filtrados(); track c.id) {
+            <tr>
+              <td>{{ c.dni }}</td>
+              <td>{{ c.apellidos }}, {{ c.nombres }}</td>
+              <td>{{ c.email }}</td>
+              <td>{{ c.telefono ?? '—' }}</td>
+              <td><span class="badge" [class.inactivo]="!c.estado">{{ c.estado ? 'Activo' : 'Inactivo' }}</span></td>
+              <td class="acciones">
+                <a [routerLink]="[c.id, 'editar']" class="boton">Editar</a>
+                <button type="button" class="boton peligro" (click)="eliminar(c)">Dar de baja</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="vacio">{{ filtro() ? 'No hay coincidencias en esta página.' : 'No hay clientes para mostrar.' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (respuesta(); as datos) {
+      <div class="paginacion">
+        <button type="button" class="boton" (click)="cambiarPagina(-1)" [disabled]="pagina() === 0">Anterior</button>
+        <span>Página {{ datos.pagina + 1 }} de {{ datos.totalPaginas }} · {{ datos.totalElementos }} clientes</span>
+        <button type="button" class="boton" (click)="cambiarPagina(1)" [disabled]="datos.ultima">Siguiente</button>
+      </div>
+    }
+  }
+</section>
