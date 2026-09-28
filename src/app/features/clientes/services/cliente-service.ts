@@ -13,7 +13,7 @@ export class ClienteService {
   listar(
     pagina = 0,
     tamanio = 10,
-    ordenarPor: 'id' | 'dni' | 'apellidos' = 'apellidos',
+    ordenarPor: 'id' | 'dni' | 'nombres' | 'apellidos' | 'email' = 'apellidos',
     direccion: 'asc' | 'desc' = 'asc',
   ): Observable<PaginaResponse<Cliente>> {
     const params = new HttpParams()
