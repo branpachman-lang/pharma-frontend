@@ -1,0 +1,80 @@
+<section>
+  <div class="encabezado">
+    <h2>Productos</h2>
+    <a routerLink="nuevo" class="boton principal">+ Nuevo producto</a>
+  </div>
+
+  <div class="controles">
+    <label for="categoria-filtro">Categoría (esta página)</label>
+    <select id="categoria-filtro" [value]="categoriaFiltro() ?? ''" (change)="filtrarPorCategoria($event)">
+      <option value="">Todas</option>
+      @for (c of categorias(); track c.id) {
+        <option [value]="c.id">{{ c.nombre }}</option>
+      }
+    </select>
+    <label for="tamanio-productos">Filas por página</label>
+    <select id="tamanio-productos" [value]="tamanio()" (change)="cambiarTamanio($event)">
+      <option value="5">5</option><option value="10">10</option><option value="20">20</option>
+    </select>
+  </div>
+
+  @if (!productoService.bajaLogicaDisponible() && resultado()) {
+    <p class="aviso">El backend activo usa el contrato anterior. Reinícialo con los cambios actuales para habilitar la baja lógica.</p>
+  }
+  @if (errorCategorias()) { <p class="error" role="alert">{{ errorCategorias() }}</p> }
+  @if (errorProductos()) { <p class="error" role="alert">{{ errorProductos() }}</p> }
+
+  @if (cargando()) {
+    <p>Cargando productos...</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table>
+        <thead><tr>
+          <th><button type="button" class="orden" (click)="ordenar('nombre')">Nombre {{ ordenarPor() === 'nombre' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+          <th>Categoría</th>
+          <th><button type="button" class="orden" (click)="ordenar('precio')">Precio {{ ordenarPor() === 'precio' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+          <th><button type="button" class="orden" (click)="ordenar('stock')">Stock {{ ordenarPor() === 'stock' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+          <th>Estado</th><th>Acciones</th>
+        </tr></thead>
+        <tbody>
+          @for (p of productos(); track p.id) {
+            <tr>
+              <td>{{ p.nombre }}</td>
+              <td><span class="chip">{{ p.categoriaNombre }}</span></td>
+              <td>{{ p.precio | currency: 'PEN' : 'S/ ' : '1.2-2' }}</td>
+              <td>{{ p.stock }}</td>
+              <td><span class="badge" [class.inactivo]="!p.estado">{{ p.estado ? 'Activo' : 'Inactivo' }}</span></td>
+              <td class="acciones">
+                <a [routerLink]="[p.id, 'editar']" class="boton">Editar</a>
+                <button type="button" class="boton peligro" [disabled]="!p.estado || !productoService.bajaLogicaDisponible()"
+                  (click)="darDeBaja(p)">Dar de baja</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="vacio">{{ categoriaFiltro() === null ? 'No hay productos para mostrar.' : 'No hay productos de esta categoría en la página actual.' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (resultado(); as datos) {
+      <div class="paginacion">
+        <button type="button" class="boton" [disabled]="pagina() === 0" (click)="cambiarPagina(-1)">Anterior</button>
+        <span>Página {{ datos.totalPaginas ? datos.pagina + 1 : 0 }} de {{ datos.totalPaginas }} · {{ datos.totalElementos }} productos</span>
+        <button type="button" class="boton" [disabled]="datos.ultima" (click)="cambiarPagina(1)">Siguiente</button>
+      </div>
+    }
+  }
+</section>
+
+@if (pendiente(); as producto) {
+  <div class="confirmacion-fondo" (click)="!eliminando() && pendiente.set(null)">
+    <div class="confirmacion" role="alertdialog" aria-modal="true" aria-labelledby="titulo-baja-producto" (click)="$event.stopPropagation()">
+      <h3 id="titulo-baja-producto">Confirmar baja</h3>
+      <p>¿Deseas dar de baja «{{ producto.nombre }}»? Su estado cambiará a inactivo.</p>
+      <div class="confirmacion-acciones">
+        <button type="button" [disabled]="eliminando()" (click)="pendiente.set(null)">Cancelar</button>
+        <button type="button" class="confirmar" [disabled]="eliminando()" (click)="confirmarBaja()">{{ eliminando() ? 'Procesando...' : 'Dar de baja' }}</button>
+      </div>
+    </div>
+  </div>
+}
