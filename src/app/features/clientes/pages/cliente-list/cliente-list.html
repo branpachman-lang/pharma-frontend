@@ -59,7 +59,7 @@
               <td><span class="badge" [class.inactivo]="!c.estado">{{ c.estado ? 'Activo' : 'Inactivo' }}</span></td>
               <td class="acciones">
                 <a [routerLink]="[c.id, 'editar']" class="boton">Editar</a>
-                <button type="button" class="boton peligro" (click)="eliminar(c)">Dar de baja</button>
+                <button type="button" class="boton peligro" [disabled]="!c.estado" (click)="eliminar(c)">Dar de baja</button>
               </td>
             </tr>
           } @empty {
@@ -71,9 +71,21 @@
     @if (respuesta(); as datos) {
       <div class="paginacion">
         <button type="button" class="boton" (click)="cambiarPagina(-1)" [disabled]="pagina() === 0">Anterior</button>
-        <span>Página {{ datos.pagina + 1 }} de {{ datos.totalPaginas }} · {{ datos.totalElementos }} clientes</span>
+        <span>Página {{ datos.totalPaginas ? datos.pagina + 1 : 0 }} de {{ datos.totalPaginas }} · {{ datos.totalElementos }} clientes</span>
         <button type="button" class="boton" (click)="cambiarPagina(1)" [disabled]="datos.ultima">Siguiente</button>
       </div>
     }
   }
 </section>
+@if (pendiente(); as cliente) {
+  <div class="confirmacion-fondo" (click)="!eliminando() && pendiente.set(null)">
+    <div class="confirmacion" role="alertdialog" aria-modal="true" aria-labelledby="titulo-baja-cliente" (click)="$event.stopPropagation()">
+      <h3 id="titulo-baja-cliente">Confirmar baja</h3>
+      <p>¿Deseas dar de baja a {{ cliente.nombres }} {{ cliente.apellidos }}? Su estado cambiará a inactivo.</p>
+      <div class="confirmacion-acciones">
+        <button type="button" [disabled]="eliminando()" (click)="pendiente.set(null)">Cancelar</button>
+        <button type="button" class="confirmar" [disabled]="eliminando()" (click)="confirmarBaja()">{{ eliminando() ? 'Procesando...' : 'Dar de baja' }}</button>
+      </div>
+    </div>
+  </div>
+}

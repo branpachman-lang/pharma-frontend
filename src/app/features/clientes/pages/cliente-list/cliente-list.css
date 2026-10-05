@@ -19,3 +19,4 @@ th { background: #0f2e5c; color: white; white-space: nowrap; }
 .badge.inactivo { background: #f1f5f9; color: #64748b; }
 .vacio { text-align: center; color: #64748b; }
 .paginacion { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+.encabezado .principal { border-color: #0f2e5c; }

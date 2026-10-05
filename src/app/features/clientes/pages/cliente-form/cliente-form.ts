@@ -3,6 +3,7 @@ import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { erroresDeValidacion, mensajeError } from '../../../../core/utils/http-error';
+import { NotificacionService } from '../../../../core/services/notificacion.service';
 import { ClienteRequest } from '../../models/cliente.model';
 import { ClienteService } from '../../services/cliente-service';
 
@@ -16,6 +17,7 @@ export class ClienteForm implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly servicio = inject(ClienteService);
   private readonly router = inject(Router);
+  private readonly avisos = inject(NotificacionService);
 
   readonly id = input<string>();
   protected readonly cargando = signal(false);
@@ -87,7 +89,10 @@ export class ClienteForm implements OnInit {
     this.erroresServidor.set({});
     this.guardando.set(true);
     peticion.subscribe({
-      next: () => void this.router.navigate(['/clientes']),
+      next: () => {
+        this.avisos.mostrar(id ? 'Cliente actualizado correctamente.' : 'Cliente registrado correctamente.');
+        void this.router.navigate(['/clientes']);
+      },
       error: (err: HttpErrorResponse) => {
         this.guardando.set(false);
         this.error.set(mensajeError(err));

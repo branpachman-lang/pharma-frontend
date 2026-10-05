@@ -3,52 +3,61 @@
     <h2>Categorías</h2>
     <a routerLink="nuevo" class="boton principal">+ Nueva categoría</a>
   </div>
-
-  <input
-    class="buscador"
-    type="search"
-    placeholder="Buscar por nombre"
-    aria-label="Buscar categorías"
-    [value]="filtro()"
-    (input)="filtro.set($any($event.target).value)"
-  />
-
-  @if (error()) {
-    <p class="error">{{ error() }}</p>
-  }
-
+  <div class="controles">
+    <input type="search" placeholder="Buscar por nombre en esta página"
+      aria-label="Buscar categorías en la página actual" [value]="filtro()"
+      (input)="filtro.set($any($event.target).value)" />
+    <label for="tamanio-categorias">Filas por página</label>
+    <select id="tamanio-categorias" [value]="tamanio()" (change)="cambiarTamanio($event)">
+      <option value="5">5</option><option value="10">10</option><option value="20">20</option>
+    </select>
+  </div>
   @if (cargando()) {
     <p>Cargando categorías...</p>
   } @else {
-    <table>
-      <thead>
-      <tr>
-        <th>ID</th><th>Nombre</th><th>Descripción</th>
-        <th>Estado</th><th>Acciones</th>
-      </tr>
-      </thead>
-      <tbody>
-        @for (c of filtradas(); track c.id) {
-          <tr>
-            <td>{{ c.id }}</td>
-            <td>{{ c.nombre }}</td>
-            <td>{{ c.descripcion ?? '—' }}</td>
-            <td>
-  <span class="badge" [class.inactivo]="!c.estado">
-    {{ c.estado ? 'Activo' : 'Inactivo' }}
-  </span>
-            </td>
-            <td>
-              <a [routerLink]="[c.id, 'editar']" class="boton">Editar</a>
-              <button type="button" class="boton peligro" (click)="eliminar(c)">
-                Eliminar
-              </button>
-            </td>
-          </tr>
-        } @empty {
-          <tr><td colspan="5">No hay categorías para mostrar.</td></tr>
-        }
-      </tbody>
-    </table>
+    <div class="tabla-contenedor">
+      <table>
+        <thead><tr>
+          <th><button type="button" class="orden" (click)="ordenar('id')">ID {{ ordenarPor() === 'id' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+          <th><button type="button" class="orden" (click)="ordenar('nombre')">Nombre {{ ordenarPor() === 'nombre' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+          <th>Descripción</th>
+          <th><button type="button" class="orden" (click)="ordenar('estado')">Estado {{ ordenarPor() === 'estado' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+          <th>Acciones</th>
+        </tr></thead>
+        <tbody>
+          @for (c of filtradas(); track c.id) {
+            <tr>
+              <td>{{ c.id }}</td><td>{{ c.nombre }}</td><td>{{ c.descripcion ?? '—' }}</td>
+              <td><span class="badge" [class.inactivo]="!c.estado">{{ c.estado ? 'Activo' : 'Inactivo' }}</span></td>
+              <td class="acciones">
+                <a [routerLink]="[c.id, 'editar']" class="boton">Editar</a>
+                <button type="button" class="boton peligro" [disabled]="!c.estado" (click)="eliminar(c)">Dar de baja</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="vacio">{{ filtro() ? 'No hay coincidencias en esta página.' : 'No hay categorías para mostrar.' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (respuesta(); as datos) {
+      <div class="paginacion">
+        <button type="button" class="boton" (click)="cambiarPagina(-1)" [disabled]="pagina() === 0">Anterior</button>
+        <span>Página {{ datos.totalPaginas ? datos.pagina + 1 : 0 }} de {{ datos.totalPaginas }} · {{ datos.totalElementos }} categorías</span>
+        <button type="button" class="boton" (click)="cambiarPagina(1)" [disabled]="datos.ultima">Siguiente</button>
+      </div>
+    }
   }
 </section>
+@if (pendiente(); as categoria) {
+  <div class="confirmacion-fondo" (click)="!eliminando() && pendiente.set(null)">
+    <div class="confirmacion" role="alertdialog" aria-modal="true" aria-labelledby="titulo-baja-categoria" (click)="$event.stopPropagation()">
+      <h3 id="titulo-baja-categoria">Confirmar baja</h3>
+      <p>¿Deseas dar de baja la categoría «{{ categoria.nombre }}»? Su estado cambiará a inactivo.</p>
+      <div class="confirmacion-acciones">
+        <button type="button" [disabled]="eliminando()" (click)="pendiente.set(null)">Cancelar</button>
+        <button type="button" class="confirmar" [disabled]="eliminando()" (click)="confirmarBaja()">{{ eliminando() ? 'Procesando...' : 'Dar de baja' }}</button>
+      </div>
+    </div>
+  </div>
+}

@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CategoriaRequest } from '../../models/categoria.model';
 import { CategoriaService } from '../../services/categoria-service';
 import { erroresDeValidacion, mensajeError } from '../../../../core/utils/http-error';
+import { NotificacionService } from '../../../../core/services/notificacion.service';
 
 @Component({
   selector: 'app-categoria-form',
@@ -16,6 +17,7 @@ export class CategoriaForm implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly servicio = inject(CategoriaService);
   private readonly router = inject(Router);
+  private readonly avisos = inject(NotificacionService);
 
   readonly id = input<string>();
   protected readonly guardando = signal(false);
@@ -71,7 +73,10 @@ export class CategoriaForm implements OnInit {
     this.guardando.set(true);
 
     peticion.subscribe({
-      next: () => void this.router.navigate(['/categorias']),
+      next: () => {
+        this.avisos.mostrar(id ? 'Categoría actualizada correctamente.' : 'Categoría registrada correctamente.');
+        void this.router.navigate(['/categorias']);
+      },
       error: (err: HttpErrorResponse) => {
         this.guardando.set(false);
         this.error.set(mensajeError(err));

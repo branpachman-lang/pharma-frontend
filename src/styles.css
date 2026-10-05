@@ -5,3 +5,23 @@ body {
   color: #1f2937;
 }
 h2 { color: #0f2e5c; }
+.notificacion { position: fixed; right: 24px; top: 24px; z-index: 1000; display: flex;
+  align-items: center; gap: 12px; max-width: min(420px, calc(100vw - 32px)); padding: 14px 16px;
+  border: 1px solid #bbf7d0; border-radius: 12px; background: #f0fdf4; color: #166534;
+  box-shadow: 0 14px 36px #0f172a26; font-weight: 600; }
+.notificacion-error { border-color: #fecaca; background: #fef2f2; color: #991b1b; }
+.notificacion-icono { display: grid; place-items: center; flex: 0 0 24px; height: 24px;
+  border-radius: 50%; border: 1px solid currentColor; }
+.notificacion button { margin-left: auto; border: 0; background: transparent; color: inherit;
+  font: inherit; font-size: 20px; cursor: pointer; }
+.confirmacion-fondo { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center;
+  padding: 16px; background: #0f172a99; }
+.confirmacion { width: min(100%, 420px); padding: 28px; border-radius: 16px; background: white;
+  box-shadow: 0 24px 60px #0f172a55; }
+.confirmacion h3 { margin: 0 0 8px; color: #0f2e5c; }
+.confirmacion p { margin: 0 0 22px; line-height: 1.5; color: #475569; }
+.confirmacion-acciones { display: flex; justify-content: flex-end; gap: 10px; }
+.confirmacion-acciones button { padding: 10px 14px; border: 1px solid #cbd5e1;
+  border-radius: 8px; background: white; font: inherit; cursor: pointer; }
+.confirmacion-acciones .confirmar { border-color: #b42318; background: #b42318; color: white; }
+.confirmacion-acciones button:disabled { opacity: .55; cursor: not-allowed; }

@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { PaginaResponse } from '../../../../core/models/pagina-response';
 import { mensajeError } from '../../../../core/utils/http-error';
+import { NotificacionService } from '../../../../core/services/notificacion.service';
 import { Cliente } from '../../models/cliente.model';
 import { ClienteService } from '../../services/cliente-service';
 
@@ -15,6 +16,7 @@ import { ClienteService } from '../../services/cliente-service';
 })
 export class ClienteList implements OnInit {
   private readonly servicio = inject(ClienteService);
+  private readonly avisos = inject(NotificacionService);
   private readonly destroyRef = inject(DestroyRef);
   private solicitud?: Subscription;
 
@@ -26,6 +28,8 @@ export class ClienteList implements OnInit {
   protected readonly filtro = signal('');
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly pendiente = signal<Cliente | null>(null);
+  protected readonly eliminando = signal(false);
   protected readonly filtrados = computed(() => {
     const texto = this.filtro().trim().toLocaleLowerCase();
     return (this.respuesta()?.contenido ?? []).filter((cliente) => {
@@ -89,11 +93,25 @@ export class ClienteList implements OnInit {
   }
 
   eliminar(cliente: Cliente): void {
-    if (!confirm(`¿Dar de baja a ${cliente.nombres} ${cliente.apellidos}?`)) return;
-    this.error.set(null);
+    this.pendiente.set(cliente);
+  }
+
+  confirmarBaja(): void {
+    const cliente = this.pendiente();
+    if (!cliente || this.eliminando()) return;
+    this.eliminando.set(true);
     this.servicio.eliminar(cliente.id).subscribe({
-      next: () => this.cargar(),
-      error: (err: HttpErrorResponse) => this.error.set(mensajeError(err)),
+      next: () => {
+        this.pendiente.set(null);
+        this.eliminando.set(false);
+        this.avisos.mostrar(`El cliente ${cliente.nombres} ${cliente.apellidos} se dio de baja correctamente.`);
+        this.cargar();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.pendiente.set(null);
+        this.eliminando.set(false);
+        this.avisos.mostrar(mensajeError(err), 'error');
+      },
     });
   }
 }
