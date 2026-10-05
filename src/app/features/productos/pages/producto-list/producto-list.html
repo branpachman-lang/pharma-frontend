@@ -7,16 +7,20 @@
   <div class="controles">
     <label for="categoria-filtro">Categoría (esta página)</label>
     <select id="categoria-filtro" [value]="categoriaFiltro() ?? ''" (change)="filtrarPorCategoria($event)">
-      <option value="">Todas</option>
+      <option value="" [selected]="categoriaFiltro() === null">Todas</option>
       @for (c of categorias(); track c.id) {
-        <option [value]="c.id">{{ c.nombre }}</option>
+        <option [value]="c.id" [selected]="categoriaFiltro() === c.id">{{ c.nombre }}</option>
       }
     </select>
     <label for="tamanio-productos">Filas por página</label>
     <select id="tamanio-productos" [value]="tamanio()" (change)="cambiarTamanio($event)">
-      <option value="5">5</option><option value="10">10</option><option value="20">20</option>
+      <option value="5">5</option><option value="10">10</option><option value="20">20</option><option value="100">100</option>
     </select>
   </div>
+
+  @if (categoriaFiltro() !== null && tamanio() === 100 && pagina() === 0) {
+    <p class="nota-filtro">Mostrando productos de la categoría {{ nombreCategoriaFiltro() }} en los primeros 100 registros.</p>
+  }
 
   @if (!productoService.bajaLogicaDisponible() && resultado()) {
     <p class="aviso">El backend activo usa el contrato anterior. Reinícialo con los cambios actuales para habilitar la baja lógica.</p>

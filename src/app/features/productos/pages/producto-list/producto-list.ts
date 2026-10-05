@@ -1,6 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -19,6 +19,7 @@ import { ProductoService } from '../../services/producto-service';
   styleUrl: './producto-list.css',
 })
 export class ProductoList implements OnInit {
+  readonly categoriaId = input<string>();
   protected readonly productoService = inject(ProductoService);
   private readonly categoriaService = inject(CategoriaService);
   private readonly avisos = inject(NotificacionService);
@@ -43,12 +44,20 @@ export class ProductoList implements OnInit {
     const lista = this.resultado()?.contenido ?? [];
     return filtro === null ? lista : lista.filter(producto => producto.categoriaId === filtro);
   });
+  protected readonly nombreCategoriaFiltro = computed(() =>
+    this.categorias().find(categoria => categoria.id === this.categoriaFiltro())?.nombre
+      ?? `ID ${this.categoriaFiltro()}`);
 
   constructor() {
     this.destroyRef.onDestroy(() => this.solicitud?.unsubscribe());
   }
 
   ngOnInit(): void {
+    const categoriaId = Number(this.categoriaId());
+    if (this.categoriaId() && Number.isSafeInteger(categoriaId) && categoriaId > 0) {
+      this.categoriaFiltro.set(categoriaId);
+      this.tamanio.set(100);
+    }
     this.categoriaService.listarTodas().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: categorias => this.categorias.set(categorias),
       error: (err: HttpErrorResponse) => this.errorCategorias.set(mensajeError(err)),
@@ -76,7 +85,7 @@ export class ProductoList implements OnInit {
 
   cambiarTamanio(event: Event): void {
     const valor = Number((event.target as HTMLSelectElement).value);
-    if (![5, 10, 20].includes(valor)) return;
+    if (![5, 10, 20, 100].includes(valor)) return;
     this.tamanio.set(valor);
     this.pagina.set(0);
     this.cargar();
