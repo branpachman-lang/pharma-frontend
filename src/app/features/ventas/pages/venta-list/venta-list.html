@@ -1,0 +1,75 @@
+<section class="ventas-pagina">
+  <header class="encabezado no-imprimir">
+    <div><h2>Ventas</h2><p>Consulta ventas por cliente, estado y rango de fechas.</p></div>
+    <a routerLink="/ventas/nueva" class="boton principal">+ Nueva venta</a>
+  </header>
+
+  <form class="filtros no-imprimir" [formGroup]="form" (ngSubmit)="aplicarFiltros()">
+    <div class="campo cliente"><label for="f-cliente">Cliente</label><select id="f-cliente" formControlName="clienteId">
+      <option value="">Todos los clientes</option>
+      @for (cliente of clientes(); track cliente.id) {
+        <option [value]="cliente.id">{{ cliente.apellidos }}, {{ cliente.nombres }} · {{ cliente.dni }}</option>
+      }
+    </select></div>
+    <div class="campo"><label for="f-estado">Estado</label><select id="f-estado" formControlName="estado">
+      <option value="">Todos</option><option value="REGISTRADA">Registrada</option><option value="ANULADA">Anulada</option>
+    </select></div>
+    <div class="campo"><label for="f-desde">Desde</label><input id="f-desde" type="date" formControlName="desde" /></div>
+    <div class="campo"><label for="f-hasta">Hasta</label><input id="f-hasta" type="date" formControlName="hasta" /></div>
+    <div class="filtro-acciones"><button class="boton principal" type="submit">Buscar</button>
+      <button class="boton" type="button" (click)="limpiarFiltros()">Limpiar</button></div>
+    @if (filtroError()) { <p class="error-filtro" role="alert">{{ filtroError() }}</p> }
+  </form>
+
+  <div class="titulo-impresion solo-impresion">
+    <h1>PharmaSoft · Consulta de ventas</h1>
+    <p>Cliente: {{ nombreCliente() }} · Estado: {{ aplicado().estado ?? 'Todos' }}</p>
+    <p>Desde: {{ aplicado().desde ?? 'Sin límite' }} · Hasta: {{ aplicado().hasta ?? 'Sin límite' }}</p>
+    <p>Impreso el {{ fechaImpresion() | date:'dd/MM/yyyy HH:mm' }} · Página {{ pagina() + 1 }} de {{ respuesta()?.totalPaginas ?? 0 }}</p>
+  </div>
+
+  <div class="resultados-barra no-imprimir">
+    <span>{{ respuesta()?.totalElementos ?? 0 }} {{ respuesta()?.totalElementos === 1 ? 'venta' : 'ventas' }}</span>
+    <div class="opciones"><label for="tamanio-ventas">Filas por página</label>
+      <select id="tamanio-ventas" [value]="tamanio()" (change)="cambiarTamanio($event)">
+        <option value="5">5</option><option value="10">10</option><option value="20">20</option>
+      </select>
+      <button type="button" class="boton" [disabled]="!respuesta()?.contenido?.length" (click)="imprimirListado()">Imprimir esta página</button>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="error-carga no-imprimir" role="alert"><span>{{ error() }}</span>
+      <button type="button" class="boton" (click)="cargar()">Reintentar</button></div>
+  }
+  @if (cargando()) { <p class="estado-carga">Cargando ventas...</p> }
+  @else if (respuesta(); as datos) {
+    <div class="tabla-contenedor"><table>
+      <thead><tr>
+        <th><button type="button" class="orden" (click)="ordenar('id')">N.º {{ ordenarPor() === 'id' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+        <th><button type="button" class="orden" (click)="ordenar('fecha')">Fecha {{ ordenarPor() === 'fecha' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+        <th>Cliente</th>
+        <th><button type="button" class="orden" (click)="ordenar('estado')">Estado {{ ordenarPor() === 'estado' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+        <th class="monto"><button type="button" class="orden" (click)="ordenar('total')">Total {{ ordenarPor() === 'total' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+        <th class="no-imprimir">Acciones</th>
+      </tr></thead>
+      <tbody>
+        @for (venta of datos.contenido; track venta.id) {
+          <tr><td>#{{ venta.id }}</td><td>{{ venta.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ venta.clienteNombre }}</td>
+            <td><span class="estado" [class.anulada]="venta.estado === 'ANULADA'">{{ venta.estado }}</span></td>
+            <td class="monto">{{ venta.total | currency:'PEN':'S/ ':'1.2-2' }}</td>
+            <td class="no-imprimir"><a class="boton" [routerLink]="['/ventas', venta.id]">Ver detalle</a></td></tr>
+        } @empty { <tr><td colspan="6" class="vacio">No hay ventas para los filtros seleccionados.</td></tr> }
+      </tbody>
+      <tfoot><tr><td colspan="4">Total de ventas registradas en esta página</td>
+        <td class="monto">{{ totalPagina() | currency:'PEN':'S/ ':'1.2-2' }}</td><td class="no-imprimir"></td></tr></tfoot>
+    </table></div>
+    <nav class="paginacion no-imprimir" aria-label="Páginas de ventas">
+      <button type="button" class="boton" [disabled]="pagina() === 0" (click)="cambiarPagina(-1)">Anterior</button>
+      <span>Página {{ datos.totalPaginas ? datos.pagina + 1 : 0 }} de {{ datos.totalPaginas }} · {{ datos.totalElementos }} ventas</span>
+      <button type="button" class="boton" [disabled]="datos.ultima" (click)="cambiarPagina(1)">Siguiente</button>
+    </nav>
+    <p class="nota no-imprimir">El total mostrado corresponde solo a las ventas registradas de esta página.</p>
+  }
+</section>
