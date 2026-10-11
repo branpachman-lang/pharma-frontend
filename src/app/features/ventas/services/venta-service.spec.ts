@@ -39,4 +39,15 @@ describe('VentaService', () => {
     peticion.flush({ contenido: [], pagina: 2, tamanio: 5,
       totalElementos: 0, totalPaginas: 0, ultima: true });
   });
+
+  it('muestra ventas cuando la API anterior responde con una lista', () => {
+    let total = 0;
+    let filas = 0;
+    servicio.buscar({ clienteId: null, estado: null, desde: null, hasta: null }, 0, 5)
+      .subscribe(pagina => { total = pagina.totalElementos; filas = pagina.contenido.length; });
+    const peticion = http.expectOne(req => req.url.endsWith('/ventas/buscar'));
+    peticion.flush([{ id: 1 }, { id: 2 }]);
+    expect(total).toBe(2);
+    expect(filas).toBe(2);
+  });
 });

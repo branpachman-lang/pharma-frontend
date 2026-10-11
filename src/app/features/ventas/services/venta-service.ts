@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PaginaResponse } from '../../../core/models/pagina-response';
 import { DireccionVenta, FiltroVentas, OrdenVenta, Venta, VentaRequest } from '../models/venta.model';
@@ -27,6 +27,18 @@ export class VentaService {
     if (filtro.estado) params = params.set('estado', filtro.estado);
     if (filtro.desde) params = params.set('desde', filtro.desde);
     if (filtro.hasta) params = params.set('hasta', filtro.hasta);
-    return this.http.get<PaginaResponse<Venta>>(`${this.url}/buscar`, { params });
+    return this.http.get<PaginaResponse<Venta> | Venta[]>(`${this.url}/buscar`, { params }).pipe(
+      map(respuesta => {
+        // Versiones anteriores de /buscar devolvían una lista completa.
+        if (!Array.isArray(respuesta)) return respuesta;
+        const totalElementos = respuesta.length;
+        const totalPaginas = Math.ceil(totalElementos / tamanio);
+        return {
+          contenido: respuesta.slice(pagina * tamanio, (pagina + 1) * tamanio),
+          pagina, tamanio, totalElementos, totalPaginas,
+          ultima: pagina + 1 >= totalPaginas,
+        };
+      }),
+    );
   }
 }
