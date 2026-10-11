@@ -1,0 +1,53 @@
+<section class="pagina-comprobante">
+  @if (cargando()) { <p class="estado-carga">Cargando comprobante...</p> }
+  @if (error()) {
+    <div class="error-carga no-imprimir" role="alert">
+      <span>{{ error() }}</span><button type="button" class="boton" (click)="cargar()">Reintentar</button>
+    </div>
+  }
+  @if (venta(); as v) {
+    <article class="comprobante" [class.anulada]="v.estado === 'ANULADA'">
+      <header class="cabecera">
+        <div><strong class="marca">PharmaSoft</strong><span>Botica · Sistema de ventas</span></div>
+        <div class="numero"><span>Comprobante de venta</span><strong>N.º {{ numero() }}</strong></div>
+      </header>
+
+      <dl class="datos">
+        <div><dt>Fecha de venta</dt><dd>{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+        <div><dt>Cliente</dt><dd>{{ v.clienteNombre }}</dd></div>
+        @if (cliente(); as c) { <div><dt>DNI</dt><dd>{{ c.dni }}</dd></div> }
+        <div><dt>Estado</dt><dd><span class="estado" [class.estado-anulada]="v.estado === 'ANULADA'">{{ v.estado }}</span></dd></div>
+      </dl>
+
+      <div class="tabla-contenedor">
+        <table>
+          <thead><tr><th>Producto</th><th class="monto">Precio</th><th class="monto">Cant.</th><th class="monto">Subtotal</th></tr></thead>
+          <tbody>
+            @for (detalle of v.detalles; track detalle.productoId) {
+              <tr><td>{{ detalle.productoNombre }}</td>
+                <td class="monto">{{ detalle.precio | currency:'PEN':'S/ ':'1.2-2' }}</td>
+                <td class="monto">{{ detalle.cantidad }}</td>
+                <td class="monto">{{ detalle.subtotal | currency:'PEN':'S/ ':'1.2-2' }}</td></tr>
+            }
+          </tbody>
+          <tfoot><tr><td colspan="2">{{ v.detalles.length }} {{ v.detalles.length === 1 ? 'producto' : 'productos' }} ·
+            {{ unidades() }} {{ unidades() === 1 ? 'unidad' : 'unidades' }}</td>
+            <td class="monto">Total</td><td class="monto total">{{ v.total | currency:'PEN':'S/ ':'1.2-2' }}</td></tr></tfoot>
+        </table>
+      </div>
+
+      @if (v.estado === 'ANULADA') { <p class="sello" aria-label="Venta anulada">ANULADA</p> }
+
+      <footer class="pie solo-impresion">
+        <p>Gracias por su compra.</p>
+        <p>Documento interno sin valor tributario · Impreso el {{ fechaImpresion() | date:'dd/MM/yyyy HH:mm' }}</p>
+      </footer>
+
+      <div class="acciones no-imprimir">
+        <a routerLink="/ventas" class="boton">Volver a ventas</a>
+        <a routerLink="/ventas/nueva" class="boton">Nueva venta</a>
+        <button type="button" class="boton principal" (click)="imprimirComprobante()">Imprimir comprobante</button>
+      </div>
+    </article>
+  }
+</section>

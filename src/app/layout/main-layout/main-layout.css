@@ -19,3 +19,8 @@
   padding: 24px;
   background: #f4f6fa;
 }
+@media print {
+  .shell, .shell.colapsado { display: block; }
+  .header, .sidebar { display: none !important; }
+  .contenido { display: block; padding: 0; background: #fff; }
+}
