@@ -59,7 +59,11 @@
             <td>{{ venta.clienteNombre }}</td>
             <td><span class="estado" [class.anulada]="venta.estado === 'ANULADA'">{{ venta.estado }}</span></td>
             <td class="monto">{{ venta.total | currency:'PEN':'S/ ':'1.2-2' }}</td>
-            <td class="no-imprimir"><a class="boton" [routerLink]="['/ventas', venta.id]">Ver detalle</a></td></tr>
+            <td class="no-imprimir acciones-fila">
+              <a class="boton" [routerLink]="['/ventas', venta.id]">Ver detalle</a>
+              <a class="boton" [routerLink]="['/ventas', venta.id]" [queryParams]="{ imprimir: 1 }"
+                [attr.aria-label]="'Imprimir venta ' + venta.id">Imprimir</a>
+            </td></tr>
         } @empty { <tr><td colspan="6" class="vacio">No hay ventas para los filtros seleccionados.</td></tr> }
       </tbody>
       <tfoot><tr><td colspan="4">Total de ventas registradas en esta página</td>
