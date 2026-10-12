@@ -3,7 +3,7 @@
 **Estudiante:** Pacho  
 **Proyecto:** PharmaSoft  
 **Rama:** `feature/pruebas-reporte-ventas-pacho`  
-**Estado del documento:** matriz completa e informe final exportado a PDF.
+**Estado del documento:** matriz completa e informe final con capturas integradas en DOCX y PDF.
 
 ## C1. Resumen de la ejecución
 
@@ -62,4 +62,4 @@ V-02 y V-05 produjeron fallos confirmados con capturas de las peticiones y respu
 2. Conservar las dos fichas C2 de los fallos V-02 y V-05, junto con sus capturas.
 3. Ya están las tres capturas de vista previa y los tres PDF limpios de I-01, con nombres correspondientes a la matriz.
 4. El reporte se verificó en vivo con datos, filtro válido, rango inválido, estado vacío y botón Limpiar. Guardar capturas y comparar con Postman si se requiere evidencia adicional del reporte.
-5. El informe final de tres páginas se exportó a `docs/informe-s9.pdf` y `docs/Pacho_LP2_S9_Autonoma.pdf` para el aula virtual.
+5. El informe final de 37 páginas incorpora las 21 pruebas y 49 evidencias visuales; está en `docs/Pacho_LP2_S9_Autonoma.docx`, `docs/Pacho_LP2_S9_Autonoma.pdf` y `docs/informe-s9.pdf`.

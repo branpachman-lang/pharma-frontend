@@ -1,6 +1,6 @@
 # Matriz de pruebas de ventas — actividad autónoma, sesión 9
 
-**Estudiante:** Pacho · **Rama:** `feature/pruebas-reporte-ventas-pacho` · **Estado:** en ejecución
+**Estudiante:** Pacho · **Rama:** `feature/pruebas-reporte-ventas-pacho` · **Estado:** completa: 19 Pasa, 2 Falla y 0 Pendiente
 
 La matriz contiene los 17 casos base y cuatro casos propios (B-03, C-05, V-06 y X-02), cada uno de un grupo distinto. **Pasa** indica que hay una captura que demuestra el resultado del caso, sea nueva o reutilizada de la práctica; **Pendiente** significa que aún se necesita ejecutarlo y adjuntar evidencia. Antes de entregar, todos los estados deben ser Pasa o Falla. Las capturas nuevas van en `docs/evidencias-s9-autonoma/` y deben llevar el ID del caso.
 
@@ -28,7 +28,7 @@ La matriz contiene los 17 casos base y cuatro casos propios (B-03, C-05, V-06 y 
 | V-06 | Validaciones · propio | Consulta de ventas abierta | Desde 11/10/2026; hasta 10/10/2026 | Mensaje de rango inválido; no sale nueva petición GET | Se mostró la validación y Network no registró un nuevo GET | Pasa | `evidencias-s9/17-fechas-invalidas.png` |
 | X-02 | Consistencia · propio | Venta 000024 registrada | Filtrar por cliente 5 y fecha 11/10/2026 | GET 200; consulta muestra la venta 000024 por S/ 1.00 | GET 200 con filtros aplicados; se mostró la venta 000024 | Pasa | `evidencias-s9/16-filtros-consulta-a.png`, `16-filtros-consulta-b.png` |
 
-## Reglas para completar los casos pendientes
+## Notas de ejecución y verificación
 
 1. Antes de cada POST, comprueba IDs, precio, stock y estado actuales: los datos de la base pueden cambiar entre intentos.
 2. Muestra SPA y DevTools > Network en la captura cuando corresponda; selecciona la petición para que se lean método, estado HTTP, Payload y Response. En cálculos, incluye la multiplicación o suma manual.
