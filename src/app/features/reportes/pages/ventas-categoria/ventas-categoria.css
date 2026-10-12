@@ -1,0 +1,35 @@
+.reporte-pagina { max-width: 1120px; margin: 0 auto; }
+.encabezado { margin-bottom: 20px; }
+.encabezado h2 { margin: 0 0 5px; color: #0f2e5c; font-size: 30px; }
+.encabezado p { margin: 0; color: #64748b; }
+.encabezado .seccion { margin-bottom: 8px; color: #366395; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.filtros { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; padding: 20px; border: 1px solid #e1e8f1; border-radius: 14px; background: #fff; box-shadow: 0 5px 18px #0f2e5c0b; }
+.campo { min-width: 185px; }
+.campo label { display: block; margin-bottom: 6px; color: #34445b; font-size: 14px; font-weight: 700; }
+.campo input { width: 100%; min-height: 42px; padding: 8px 10px; border: 1px solid #bfccdc; border-radius: 8px; background: #fff; color: #25354b; font: inherit; }
+.campo input:focus { outline: 2px solid #87a9d9; outline-offset: 1px; }
+.acciones { display: flex; gap: 8px; }
+.boton { min-height: 42px; padding: 8px 14px; border: 1px solid #c4d1e0; border-radius: 8px; background: #fff; color: #22334b; font: inherit; cursor: pointer; }
+.boton:hover { background: #f0f5fb; }
+.boton:disabled { opacity: .55; cursor: not-allowed; }
+.principal { border-color: #0f2e5c; background: #0f2e5c; color: #fff; font-weight: 700; }
+.principal:hover { background: #173e75; }
+.error-filtro { flex-basis: 100%; margin: 0; color: #b42318; }
+.periodo { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 20px 2px 12px; color: #51627a; font-size: 14px; font-weight: 600; }
+.tabla-contenedor { overflow-x: auto; border: 1px solid #dce5ef; border-radius: 12px; background: #fff; }
+table { width: 100%; border-collapse: collapse; }
+thead th { padding: 14px; background: #0f2e5c; color: #fff; text-align: left; white-space: nowrap; }
+tbody th, tbody td, tfoot th, tfoot td { padding: 15px 14px; border-bottom: 1px solid #e3eaf2; }
+tbody th { color: #233e62; text-align: left; font-weight: 650; }
+tbody tr:hover { background: #f8fbff; }
+tfoot th, tfoot td { background: #f0f5fb; color: #0f2e5c; font-weight: 750; }
+tfoot th { text-align: left; }
+.numero { text-align: right; white-space: nowrap; }
+.comparacion { width: 38%; min-width: 180px; }
+.barra-pista { height: 12px; overflow: hidden; border-radius: 99px; background: #e6edf6; }
+.barra { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2874c2, #0f2e5c); }
+.estado { padding: 28px; border: 1px solid #dce5ef; border-radius: 12px; background: #fff; color: #64748b; text-align: center; }
+.estado.error { display: flex; justify-content: space-between; align-items: center; gap: 14px; border-color: #fecaca; background: #fef2f2; color: #991b1b; text-align: left; }
+.estado.error p { margin: 0; }
+.nota { margin: 10px 2px; color: #64748b; font-size: 13px; }
+@media (max-width: 650px) { .campo, .campo input { width: 100%; } .acciones { width: 100%; } table { min-width: 690px; } }

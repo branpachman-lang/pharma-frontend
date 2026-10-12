@@ -1,0 +1,54 @@
+<section class="reporte-pagina">
+  <header class="encabezado">
+    <div>
+      <p class="seccion">Reportes / Ventas</p>
+      <h2>Ventas por categoría</h2>
+      <p>Compara las unidades y los importes de las ventas registradas.</p>
+    </div>
+  </header>
+
+  <form class="filtros" [formGroup]="form" (ngSubmit)="generar()">
+    <div class="campo"><label for="reporte-desde">Desde</label>
+      <input id="reporte-desde" type="date" formControlName="desde" /></div>
+    <div class="campo"><label for="reporte-hasta">Hasta</label>
+      <input id="reporte-hasta" type="date" formControlName="hasta" /></div>
+    <div class="acciones">
+      <button class="boton principal" type="submit" [disabled]="cargando()">{{ cargando() ? 'Generando...' : 'Generar' }}</button>
+      <button class="boton" type="button" (click)="limpiar()" [disabled]="cargando()">Limpiar</button>
+    </div>
+    @if (filtroError()) { <p class="error-filtro" role="alert">{{ filtroError() }}</p> }
+  </form>
+
+  <div class="periodo" aria-live="polite">
+    <span>Periodo: {{ periodo().desde || 'Sin límite' }} — {{ periodo().hasta || 'Sin límite' }}</span>
+    <span>{{ filas().length }} {{ filas().length === 1 ? 'categoría' : 'categorías' }}</span>
+  </div>
+
+  @if (cargando()) {
+    <div class="estado carga" role="status">Cargando reporte...</div>
+  } @else if (error()) {
+    <div class="estado error" role="alert">
+      <p>{{ error() }}</p><button type="button" class="boton" (click)="generar()">Reintentar</button>
+    </div>
+  } @else if (filas().length === 0) {
+    <div class="estado vacio">No hay ventas en el periodo seleccionado.</div>
+  } @else {
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th scope="col">Categoría</th><th scope="col" class="numero">Unidades vendidas</th>
+        <th scope="col" class="numero">Monto</th><th scope="col">Comparación de monto</th></tr></thead>
+      <tbody>
+        @for (fila of filas(); track fila.categoriaId) {
+          <tr>
+            <th scope="row">{{ fila.categoriaNombre }}</th>
+            <td class="numero">{{ fila.cantidadVendida }}</td>
+            <td class="numero">{{ fila.montoTotal | currency:'PEN':'S/ ':'1.2-2' }}</td>
+            <td class="comparacion"><div class="barra-pista" [attr.aria-label]="'Monto relativo de ' + fila.categoriaNombre + ': ' + porcentaje(fila).toFixed(0) + '%'"><div class="barra" [style.width.%]="porcentaje(fila)"></div></div></td>
+          </tr>
+        }
+      </tbody>
+      <tfoot><tr><th scope="row">Total general</th><td class="numero">{{ totalUnidades() }}</td>
+        <td class="numero">{{ montoGeneral() | currency:'PEN':'S/ ':'1.2-2' }}</td><td></td></tr></tfoot>
+    </table></div>
+    <p class="nota">La barra más larga corresponde a la categoría con mayor monto.</p>
+  }
+</section>
