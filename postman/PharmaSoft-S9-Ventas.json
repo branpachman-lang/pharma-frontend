@@ -1,0 +1,82 @@
+{
+  "info": {
+    "name": "PharmaSoft - S9 Ventas",
+    "description": "Actividad autónoma S9. Antes de ejecutar POST, reemplazar las variables de IDs con datos reales y confirmar stock/estado. Los POST exitosos registran ventas y descuentan stock.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api/v1" },
+    { "key": "clienteActivoId", "value": "1" },
+    { "key": "clienteInactivoId", "value": "10" },
+    { "key": "productoConStock2Id", "value": "0" },
+    { "key": "productoDecimalId", "value": "0" },
+    { "key": "productoDuplicadoId", "value": "0" },
+    { "key": "desde", "value": "2026-10-01" },
+    { "key": "hasta", "value": "2026-10-14" }
+  ],
+  "item": [
+    {
+      "name": "Preparación",
+      "item": [
+        {
+          "name": "GET clientes - identificar activos e inactivo",
+          "request": { "method": "GET", "url": "{{baseUrl}}/clientes?pagina=0&tamanio=100" }
+        },
+        {
+          "name": "GET productos - identificar precio y stock",
+          "request": { "method": "GET", "url": "{{baseUrl}}/productos?pagina=0&tamanio=100" }
+        }
+      ]
+    },
+    {
+      "name": "Validaciones de la API",
+      "item": [
+        {
+          "name": "V-01 - venta sin cliente ni detalle - 400",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"clienteId\": null,\n  \"detalles\": []\n}" }, "url": "{{baseUrl}}/ventas", "description": "Verificar HTTP 400 y validationErrors; no debe registrarse una venta." }
+        },
+        {
+          "name": "V-02 - cantidad cero - 400",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"clienteId\": {{clienteActivoId}},\n  \"detalles\": [{\"productoId\": {{productoDecimalId}}, \"cantidad\": 0}]\n}" }, "url": "{{baseUrl}}/ventas", "description": "Verificar HTTP 400; el error debe indicar que la cantidad debe ser mayor que cero." }
+        },
+        {
+          "name": "V-02 - cantidad decimal - 400",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"clienteId\": {{clienteActivoId}},\n  \"detalles\": [{\"productoId\": {{productoDecimalId}}, \"cantidad\": 2.5}]\n}" }, "url": "{{baseUrl}}/ventas", "description": "Verificar que la API no acepte una cantidad no entera. Registrar el HTTP y mensaje reales." }
+        },
+        {
+          "name": "V-03 - cantidad 3 con stock 2 - 409",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"clienteId\": {{clienteActivoId}},\n  \"detalles\": [{\"productoId\": {{productoConStock2Id}}, \"cantidad\": 3}]\n}" }, "url": "{{baseUrl}}/ventas", "description": "Confirmar stock 2 justo antes de enviar. Esperado: HTTP 409, stock sin cambios." }
+        },
+        {
+          "name": "V-05 - producto duplicado en dos líneas",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"clienteId\": {{clienteActivoId}},\n  \"detalles\": [\n    {\"productoId\": {{productoDuplicadoId}}, \"cantidad\": 1},\n    {\"productoId\": {{productoDuplicadoId}}, \"cantidad\": 1}\n  ]\n}" }, "url": "{{baseUrl}}/ventas", "description": "Regla propuesta: rechazar duplicados con 409. Registrar el comportamiento real. Atención: si la API acepta, descuenta dos unidades y crea una venta." }
+        },
+        {
+          "name": "M-02 - cliente inactivo - 409",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"clienteId\": {{clienteInactivoId}},\n  \"detalles\": [{\"productoId\": {{productoDecimalId}}, \"cantidad\": 1}]\n}" }, "url": "{{baseUrl}}/ventas", "description": "Esperado: HTTP 409 y mensaje de cliente inactivo; no descontar stock." }
+        }
+      ]
+    },
+    {
+      "name": "Consultas y reporte",
+      "item": [
+        {
+          "name": "GET ventas paginadas",
+          "request": { "method": "GET", "url": "{{baseUrl}}/ventas/buscar?pagina=0&tamanio=10&ordenarPor=fecha&direccion=desc" }
+        },
+        {
+          "name": "GET reporte histórico sin fechas",
+          "request": { "method": "GET", "url": "{{baseUrl}}/reportes/ventas-por-categoria", "description": "Debe devolver una lista JSON sin paginación; comparar con la pantalla Reportes." }
+        },
+        {
+          "name": "GET reporte con rango",
+          "request": { "method": "GET", "url": "{{baseUrl}}/reportes/ventas-por-categoria?desde={{desde}}&hasta={{hasta}}", "description": "Verificar que solo se agregan fechas con valor y que las categorías e importes coinciden con la SPA." }
+        },
+        {
+          "name": "GET reporte con rango invertido - 409",
+          "request": { "method": "GET", "url": "{{baseUrl}}/reportes/ventas-por-categoria?desde={{hasta}}&hasta={{desde}}", "description": "La SPA debe bloquear este rango; Postman verifica la misma regla en el backend." }
+        }
+      ]
+    }
+  ]
+}
