@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { Permiso } from '../../../../core/auth/auth.model';
+import { AuthService } from '../../../../core/auth/auth-service';
 import { CategoriaService } from '../../../categorias/services/categoria-service';
 import { ProductoService } from '../../services/producto-service';
 import { ProductoList } from './producto-list';
@@ -9,13 +11,16 @@ import { ProductoList } from './producto-list';
 describe('ProductoList', () => {
   let fixture: ComponentFixture<ProductoList>;
   let solicitud: number[];
+  let permisos: WritableSignal<Permiso[]>;
 
   beforeEach(async () => {
     solicitud = [];
+    permisos = signal<Permiso[]>(['CATALOGO_LEER']);
     await TestBed.configureTestingModule({
       imports: [ProductoList],
       providers: [
         provideRouter([]),
+        { provide: AuthService, useValue: { tienePermiso: (permiso: Permiso) => permisos().includes(permiso) } },
         { provide: CategoriaService, useValue: {
           listarTodas: () => of([{
             id: 4, nombre: 'Abarrotes', descripcion: null, estado: true,
@@ -52,5 +57,18 @@ describe('ProductoList', () => {
     expect(tamanio?.value).toBe('100');
     expect(contenido.textContent).toContain('Mostrando productos de la categoría Abarrotes en los primeros 100 registros');
     expect(contenido.textContent).toContain('Azúcar');
+  });
+
+  it('oculta edición al vendedor y la muestra al obtener permiso de escritura', async () => {
+    const contenido: HTMLElement = fixture.nativeElement;
+    expect(contenido.textContent).not.toContain('Nuevo producto');
+    expect(contenido.querySelectorAll('.acciones').length).toBe(0);
+
+    permisos.set(['CATALOGO_LEER', 'CATALOGO_ESCRIBIR']);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(contenido.textContent).toContain('Nuevo producto');
+    expect(contenido.querySelectorAll('.acciones').length).toBe(1);
   });
 });

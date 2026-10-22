@@ -9,6 +9,7 @@ import { PaginaResponse } from '../../../../core/models/pagina-response';
 import { NotificacionService } from '../../../../core/services/notificacion.service';
 import { listarTodasPaginas } from '../../../../core/utils/listar-todas-paginas';
 import { mensajeError } from '../../../../core/utils/http-error';
+import { SiPermiso } from '../../../../shared/directives/si-permiso';
 import { Cliente } from '../../../clientes/models/cliente.model';
 import { ClienteService } from '../../../clientes/services/cliente-service';
 import { DireccionVenta, EstadoVenta, FiltroVentas, OrdenVenta, Venta } from '../../models/venta.model';
@@ -18,7 +19,7 @@ const FILTRO_VACIO: FiltroVentas = { clienteId: null, estado: null, desde: null,
 
 @Component({
   selector: 'app-venta-list',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe, SiPermiso],
   templateUrl: './venta-list.html',
   styleUrl: './venta-list.css',
 })
