@@ -42,3 +42,10 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Informes y evidencias locales de las practicas
+/docs/
+
+# Colecciones exportadas de Postman
+/postman/*.json
+/postman/**/*.json
