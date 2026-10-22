@@ -1,7 +1,7 @@
 <section>
   <div class="encabezado">
     <h2>Clientes</h2>
-    <a routerLink="nuevo" class="boton principal">+ Nuevo cliente</a>
+    <a *appSiPermiso="'CLIENTES_ESCRIBIR'" routerLink="nuevo" class="boton principal">+ Nuevo cliente</a>
   </div>
 
   <div class="controles">
@@ -46,7 +46,7 @@
             <th>Correo</th>
             <th>Teléfono</th>
             <th>Estado</th>
-            <th>Acciones</th>
+            <th *appSiPermiso="'CLIENTES_ESCRIBIR'">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -57,7 +57,7 @@
               <td>{{ c.email }}</td>
               <td>{{ c.telefono ?? '—' }}</td>
               <td><span class="badge" [class.inactivo]="!c.estado">{{ c.estado ? 'Activo' : 'Inactivo' }}</span></td>
-              <td class="acciones">
+              <td *appSiPermiso="'CLIENTES_ESCRIBIR'" class="acciones">
                 <a [routerLink]="[c.id, 'editar']" class="boton">Editar</a>
                 <button type="button" class="boton peligro" [disabled]="!c.estado" (click)="eliminar(c)">Dar de baja</button>
               </td>

@@ -1,7 +1,7 @@
 <section>
   <div class="encabezado">
     <h2>Categorías</h2>
-    <a routerLink="nuevo" class="boton principal">+ Nueva categoría</a>
+    <a *appSiPermiso="'CATALOGO_ESCRIBIR'" routerLink="nuevo" class="boton principal">+ Nueva categoría</a>
   </div>
   <div class="controles">
     <input type="search" placeholder="Buscar por nombre en esta página"
@@ -22,16 +22,19 @@
           <th><button type="button" class="orden" (click)="ordenar('nombre')">Nombre {{ ordenarPor() === 'nombre' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
           <th>Descripción</th>
           <th><button type="button" class="orden" (click)="ordenar('estado')">Estado {{ ordenarPor() === 'estado' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
-          <th>Acciones</th>
+          <th *appSiPermiso="'CATALOGO_ESCRIBIR'">Acciones</th>
         </tr></thead>
         <tbody>
           @for (c of filtradas(); track c.id) {
             <tr>
-              <td>{{ c.id }}</td><td>{{ c.nombre }}</td><td>{{ c.descripcion ?? '—' }}</td>
+              <td>{{ c.id }}</td>
+              <td>{{ c.nombre }}
+                <a [routerLink]="'/productos'" [queryParams]="{ categoriaId: c.id }" class="ver-productos">Ver productos</a>
+              </td>
+              <td>{{ c.descripcion ?? '—' }}</td>
               <td><span class="badge" [class.inactivo]="!c.estado">{{ c.estado ? 'Activo' : 'Inactivo' }}</span></td>
-              <td class="acciones">
+              <td *appSiPermiso="'CATALOGO_ESCRIBIR'" class="acciones">
                 <a [routerLink]="[c.id, 'editar']" class="boton">Editar</a>
-                <a [routerLink]="'/productos'" [queryParams]="{ categoriaId: c.id }" class="boton">Ver productos</a>
                 <button type="button" class="boton peligro" [disabled]="!c.estado" (click)="eliminar(c)">Dar de baja</button>
               </td>
             </tr>

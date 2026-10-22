@@ -1,7 +1,7 @@
 <section class="ventas-pagina">
   <header class="encabezado no-imprimir">
     <div><h2>Ventas</h2><p>Consulta ventas por cliente, estado y rango de fechas.</p></div>
-    <a routerLink="/ventas/nueva" class="boton principal">+ Nueva venta</a>
+    <a *appSiPermiso="'VENTAS_REGISTRAR'" routerLink="/ventas/nueva" class="boton principal">+ Nueva venta</a>
   </header>
 
   <form class="filtros no-imprimir" [formGroup]="form" (ngSubmit)="aplicarFiltros()">

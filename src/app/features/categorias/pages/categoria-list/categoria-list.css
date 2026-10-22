@@ -9,6 +9,7 @@ th { background: #0f2e5c; color: white; white-space: nowrap; }
 .orden { border: 0; background: transparent; color: inherit; font: inherit; font-weight: 700; cursor: pointer; padding: 0; }
 .orden:hover { text-decoration: underline; }
 .acciones { white-space: nowrap; }
+.ver-productos { display: block; width: fit-content; margin-top: 3px; color: #164d87; font-size: 13px; text-decoration: underline; }
 .boton { display: inline-block; padding: 7px 10px; margin-right: 6px;
   border: 1px solid #cbd5e1; border-radius: 6px; background: white;
   color: #1f2937; text-decoration: none; cursor: pointer; }
