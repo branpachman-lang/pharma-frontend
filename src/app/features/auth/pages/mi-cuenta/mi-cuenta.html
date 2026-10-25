@@ -1,0 +1,70 @@
+<section class="mi-cuenta">
+  <div class="encabezado">
+    <div>
+      <h2>Mi cuenta</h2>
+      <p>Datos y permisos registrados en PharmaBackend.</p>
+    </div>
+  </div>
+
+  @if (cargando()) {
+    <div class="tarjeta estado" role="status">Cargando datos de su cuenta...</div>
+  } @else if (error(); as mensaje) {
+    <div class="tarjeta estado error" role="alert">
+      <p>{{ mensaje }}</p>
+      <button type="button" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (perfil(); as datos) {
+    @if (permisosCambiaron()) {
+      <div class="aviso-cambio" role="alert">
+        Sus permisos cambiaron. Cierre sesión y vuelva a ingresar para actualizarlos.
+      </div>
+    }
+
+    <div class="tarjeta identidad">
+      <div>
+        <span class="etiqueta">Nombre completo</span>
+        <strong>{{ datos.empleadoNombre || 'No registrado' }}</strong>
+      </div>
+      <div>
+        <span class="etiqueta">Usuario</span>
+        <strong>{{ datos.username }}</strong>
+      </div>
+      @if (datos.cargo) {
+        <div>
+          <span class="etiqueta">Cargo</span>
+          <strong>{{ datos.cargo }}</strong>
+        </div>
+      }
+    </div>
+
+    <div class="tarjeta roles">
+      <h3>Roles</h3>
+      <div class="etiquetas">
+        @for (rol of datos.roles; track rol) {
+          <span class="rol">{{ rol }}</span>
+        } @empty {
+          <span>Sin roles asignados</span>
+        }
+      </div>
+    </div>
+
+    <h3 class="titulo-permisos">Permisos por módulo</h3>
+    <div class="modulos">
+      @for (modulo of modulos; track modulo.nombre) {
+        <section class="tarjeta modulo" [attr.aria-label]="modulo.nombre">
+          <h4>{{ modulo.nombre }}</h4>
+          @for (permiso of modulo.permisos; track permiso.clave) {
+            <div class="permiso">
+              <span>{{ permiso.etiqueta }}</span>
+              @if (tienePermiso(datos, permiso.clave)) {
+                <span class="concedido" [attr.aria-label]="permiso.clave + ' concedido'">✔ Permitido</span>
+              } @else {
+                <span class="denegado" [attr.aria-label]="permiso.clave + ' no concedido'">✘ Sin permiso</span>
+              }
+            </div>
+          }
+        </section>
+      }
+    </div>
+  }
+</section>

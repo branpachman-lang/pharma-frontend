@@ -1,0 +1,46 @@
+.mi-cuenta { max-width: 1050px; margin: 0 auto; color: #172842; }
+.encabezado { margin-bottom: 20px; }
+.encabezado h2 { margin: 0 0 6px; color: #0f2e5c; font-size: 30px; }
+.encabezado p { margin: 0; color: #60728c; }
+.tarjeta {
+  border: 1px solid #d9e3f0;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgb(15 46 92 / 0.04);
+}
+.estado { padding: 24px; }
+.estado.error { color: #a3241b; }
+.estado.error p { margin: 0 0 12px; }
+.estado button {
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 14px;
+  background: #0f2e5c;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+}
+.aviso-cambio {
+  margin-bottom: 16px;
+  border: 1px solid #eacb84;
+  border-radius: 9px;
+  padding: 12px 15px;
+  background: #fff8e8;
+  color: #6d4900;
+}
+.identidad { display: flex; flex-wrap: wrap; gap: 18px 48px; padding: 22px; }
+.identidad > div { display: flex; flex-direction: column; gap: 5px; min-width: 180px; }
+.etiqueta { color: #65768e; font-size: 13px; }
+.identidad strong { font-size: 17px; }
+.roles { margin-top: 16px; padding: 20px 22px; }
+h3 { margin: 0 0 14px; color: #0f2e5c; font-size: 20px; }
+.etiquetas { display: flex; flex-wrap: wrap; gap: 8px; }
+.rol { border-radius: 99px; padding: 6px 12px; background: #e8eff8; color: #0f2e5c; font-weight: 600; }
+.titulo-permisos { margin: 24px 0 14px; }
+.modulos { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+.modulo { padding: 17px 19px; }
+.modulo h4 { margin: 0 0 12px; color: #0f2e5c; font-size: 17px; }
+.permiso { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 8px 0; border-top: 1px solid #edf1f6; }
+.permiso span:last-child { white-space: nowrap; font-size: 13px; font-weight: 600; }
+.concedido { color: #14743b; }
+.denegado { color: #a3241b; }
