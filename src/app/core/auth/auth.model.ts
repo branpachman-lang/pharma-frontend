@@ -34,3 +34,16 @@ export interface Sesion {
   roles: string[];
   permisos: Permiso[];
 }
+
+/** Respuesta real de GET /auth/me en PharmaBackend. */
+export interface PerfilUsuario {
+  id: number;
+  username: string;
+  empleadoId: number;
+  empleadoNombre: string;
+  cargo: string;
+  roles: string[];
+  permisos: Permiso[];
+  estado: boolean;
+  fechaCreacion: string;
+}

@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth-service';
 
@@ -70,5 +70,52 @@ describe('AuthService', () => {
     }));
     expect(TestBed.inject(AuthService).autenticado()).toBe(false);
     expect(sessionStorage.getItem('pharmasoft.sesion')).toBeNull();
+  });
+
+  it('avisa cuando restan dos minutos y detiene la cuenta al cerrar sesión', () => {
+    vi.useFakeTimers();
+    try {
+      const auth = TestBed.inject(AuthService);
+      vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+      const http = TestBed.inject(HttpTestingController);
+      auth.login({ username: 'admin', password: 'clave' }).subscribe();
+      http.expectOne(`${environment.apiUrl}/auth/login`).flush({
+        token: 'jwt-de-prueba', tipo: 'Bearer', expiraEnSegundos: 180,
+        username: 'admin', nombreCompleto: 'Administradora',
+        roles: ['ADMIN'], permisos: ['CATALOGO_LEER'],
+      });
+
+      expect(auth.segundosRestantes()).toBe(180);
+      expect(auth.porVencer()).toBe(false);
+      vi.advanceTimersByTime(60_000);
+      expect(auth.segundosRestantes()).toBe(120);
+      expect(auth.porVencer()).toBe(true);
+
+      auth.ocultarAviso();
+      expect(auth.avisoOculto()).toBe(true);
+      auth.cerrarSesion();
+      expect(auth.segundosRestantes()).toBe(0);
+      expect(sessionStorage.getItem('pharmasoft.avisoOculto')).toBeNull();
+      vi.advanceTimersByTime(60_000);
+      expect(auth.segundosRestantes()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('consulta Mi cuenta en el endpoint protegido del backend', () => {
+    const auth = TestBed.inject(AuthService);
+    const http = TestBed.inject(HttpTestingController);
+    let nombre = '';
+    auth.obtenerPerfil().subscribe(perfil => nombre = perfil.empleadoNombre);
+    const peticion = http.expectOne(`${environment.apiUrl}/auth/me`);
+    expect(peticion.request.method).toBe('GET');
+    peticion.flush({
+      id: 1, username: 'admin', empleadoId: 1,
+      empleadoNombre: 'Rosa Elena Mendoza Ticona', cargo: 'Administradora',
+      roles: ['ADMIN'], permisos: ['CATALOGO_LEER'],
+      estado: true, fechaCreacion: '2026-10-01T10:00:00',
+    });
+    expect(nombre).toBe('Rosa Elena Mendoza Ticona');
   });
 });
