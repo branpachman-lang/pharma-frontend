@@ -16,6 +16,7 @@ import { Producto } from '../../../productos/models/producto.model';
 import { ProductoService } from '../../../productos/services/producto-service';
 import { VentaRequest } from '../../models/venta.model';
 import { VentaService } from '../../services/venta-service';
+import { ConfirmarVenta } from '../../components/confirmar-venta/confirmar-venta';
 
 interface LineaForm {
   productoId: FormControl<number | null>;
@@ -24,7 +25,7 @@ interface LineaForm {
 
 @Component({
   selector: 'app-venta-form',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, ConfirmarVenta],
   templateUrl: './venta-form.html',
   styleUrl: './venta-form.css',
 })

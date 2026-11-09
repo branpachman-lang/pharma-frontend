@@ -106,25 +106,9 @@
 </section>
 
 @if (confirmando()) {
-  <div class="venta-modal" (click)="volver()">
-    <div class="modal-contenido" role="dialog" aria-modal="true" aria-labelledby="titulo-confirmar-venta"
-      (click)="$event.stopPropagation()">
-      <span class="etiqueta-modal">Revisión final</span>
-      <h3 id="titulo-confirmar-venta">¿Confirmas el registro de la venta?</h3>
-      <dl class="resumen">
-        <div><dt>Cliente</dt><dd>{{ clienteElegido()?.apellidos }}, {{ clienteElegido()?.nombres }}</dd></div>
-        <div><dt>Productos</dt><dd>{{ detalles.length }}</dd></div>
-        <div><dt>Total estimado</dt><dd>{{ total() | currency:'PEN':'S/ ':'1.2-2' }}</dd></div>
-      </dl>
-      <p class="nota">El servidor volverá a comprobar el stock y calculará el total definitivo.</p>
-      <label class="opcion-imprimir"><input type="checkbox" [checked]="imprimirAlRegistrar()"
-        (change)="imprimirAlRegistrar.set($any($event.target).checked)" /> Imprimir comprobante al registrar</label>
-      <div class="acciones">
-        <button type="button" class="boton" [disabled]="guardando()" (click)="volver()">Volver</button>
-        <button type="button" class="boton principal" [disabled]="guardando()" (click)="confirmar()">
-          {{ guardando() ? 'Registrando...' : 'Confirmar venta' }}
-        </button>
-      </div>
-    </div>
-  </div>
+  <app-confirmar-venta
+    [cliente]="clienteElegido()?.apellidos + ', ' + clienteElegido()?.nombres"
+    [cantidadProductos]="detalles.length" [total]="total()" [guardando]="guardando()"
+    [imprimir]="imprimirAlRegistrar()" (imprimirChange)="imprimirAlRegistrar.set($event)"
+    (cancelar)="volver()" (confirmar)="confirmar()" />
 }

@@ -53,10 +53,33 @@ describe('VentaForm', () => {
     expect(componente['confirmando']()).toBe(true);
     expect(registrar).not.toHaveBeenCalled();
 
-    componente['confirmar']();
+    fixture.detectChanges();
+    const dialogo = fixture.nativeElement.querySelector('[role="dialog"]') as HTMLElement;
+    expect(dialogo.textContent).toContain('Pacho, Ana');
+    const imprimir = dialogo.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    imprimir.click();
+    expect(componente['imprimirAlRegistrar']()).toBe(false);
+    (dialogo.querySelector('button.principal') as HTMLButtonElement).click();
     expect(registrar).toHaveBeenCalledExactlyOnceWith({
       clienteId: 1, detalles: [{ productoId: 2, cantidad: 3 }],
     });
+  });
+
+  it('permite volver desde la revisión sin registrar una venta', () => {
+    const fixture = TestBed.createComponent(VentaForm);
+    fixture.detectChanges();
+    const componente = fixture.componentInstance;
+    componente['elegirCliente'](componente['clientes']()[0]);
+    componente['agregarProducto'](componente['productos']()[0]);
+    componente['revisar']();
+    fixture.detectChanges();
+
+    (fixture.nativeElement.querySelector('[role="dialog"] button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeNull();
+    expect(registrar).not.toHaveBeenCalled();
+    expect(componente.detalles.length).toBe(1);
   });
 
   it('impide confirmar cantidades que exceden el stock', () => {
