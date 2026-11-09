@@ -25,8 +25,8 @@ Los archivos con prefijo `AA-` están en la [ronda de Edge y servicios locales](
 | D03 | `D03-auditoria.json` y `D03-clave-jwt.json` conservan conteos de la auditoría |
 | D04 | `AA-00-02-health-inicial.png`, los JSON de salud de C09 y `D04-metricas-ventas.json` |
 | E01 | Secciones «Despliegue en producción» en ambos README |
-| F01 | `F-pruebas-ronda.json` registra 53 pruebas de frontend y 43 de backend, incluido el arranque con Oracle y Redis locales |
-| F02 | Historial local y textos de PR preparados. Faltan fechas reales, publicación de PR y carga al aula |
+| F01 | La [verificación de la rama de entrega](../../PharmaBackend/docs/evidencias-s13-autonoma-manual/2026-11-08-parte-f/) conserva el antes y el después, con 45 pruebas de frontend y 43 de backend aprobadas. `F01-http-nginx.json` registra la verificación HTTP. La ronda del directorio de trabajo conserva sus 53 pruebas frontend en `F-pruebas-ronda.json` |
+| F02 | `F02-historial-PharmaBackend.txt`, `F02-historial-pharma-frontend.txt` y `F-resumen.json` registran fechas y ramas remotas. Los textos de PR están preparados. Faltan fechas reales, publicación de PR y carga al aula |
 
 ## Nombres propuestos para repetir las capturas
 
