@@ -76,13 +76,13 @@ No guardar valores reales en Git, capturas, colecciones ni el informe. `applicat
 ### Construcción y publicación de la SPA
 
 1. Ejecutar `npm ci` y `npm run build -- --stats-json`. Se genera `dist/pharma-frontend/browser/`. El API de producción usa `/api/v1`, del mismo origen. `environment.ts` se integra al compilar y no cambia mediante variables de Docker. No poner secretos en Angular.
-2. Prueba local: `docker compose -f deploy/docker-compose.yml up -d`; Nginx publica 8081. Backend y Oracle se arrancan por separado. El alias backend apunta al anfitrión de Docker Desktop.
+2. Para la prueba local, ejecutar `docker compose -f deploy/docker-compose.yml up -d`. Nginx publica el puerto 8081. Backend y Oracle se arrancan por separado.
 3. Producción: copiar los archivos a un directorio de release, conservar los chunks anteriores y activar el nuevo index.html al final mediante cambio atómico del directorio vigente. El volumen de dist usado en la práctica permite la simulación sin detener Nginx, pero no garantiza un despliegue atómico.
 4. Comprobar encabezados de index.html, main y CSS con `curl -I`; navegar a Productos y Ventas; comprobar que un error muestra Código de seguimiento.
 5. Reversión: reactivar el directorio de release anterior completo, conservar archivos con hash usados por pestañas abiertas y validar que el contrato de API siga siendo compatible. No borrar la caché del navegador como procedimiento de despliegue.
 
-Variables de infraestructura de la SPA: el compose actual no tiene variables obligatorias. Puerto 8081, alias backend:8080 y rutas de volúmenes se configuran en deploy/docker-compose.yml; el nombre de dominio y TLS se configuran en Nginx. Las variables del backend de la tabla anterior pertenecen únicamente al proceso de Java.
+El compose actual no necesita variables de infraestructura. El puerto 8081 y los volúmenes se configuran en `deploy/docker-compose.yml`. Nginx envía `/api/` al proceso Java del anfitrión por `host.docker.internal:8080` en Docker Desktop. El nombre de dominio y TLS se configuran en Nginx. Las variables del backend de la tabla anterior se aplican al proceso de Java.
 
 ## Actividad autónoma S13
 
-Se conserva la carga sin precarga global como decisión basada en las mediciones del informe. MainLayout se descarga al acceder a la zona autenticada. Los errores leen requestId del cuerpo y, como alternativa, de X-Request-Id. Informe: repositorio PharmaBackend, docs/informe-s13.pdf.
+Se conserva la carga sin precarga global como decisión basada en las mediciones del informe. MainLayout se descarga al acceder a la zona autenticada. Los errores leen `requestId` del cuerpo o la cabecera `X-Request-Id`. El PDF de entrega está en `PharmaBackend/docs/informe-s13.pdf`. Esta carpeta contiene la [guía paso a paso](docs/Guia_S13_Autonoma_Paso_a_Paso.pdf) y el [inventario de capturas](docs/Checklist_capturas_S13_Autonoma.md).
