@@ -1,0 +1,39 @@
+<section class="reporte" aria-labelledby="titulo-mas-vendidos">
+  <header>
+    <h3 id="titulo-mas-vendidos">Productos más vendidos</h3>
+    <p>Unidades e importes de las ventas registradas.</p>
+  </header>
+
+  @if (estado(); as reporte) {
+    @if (reporte.tipo === 'cargando') {
+      <p class="estado" role="status">Cargando datos del reporte...</p>
+    } @else if (reporte.tipo === 'error') {
+      <p class="estado error" role="alert">No se pudo obtener el reporte. Inténtalo nuevamente más tarde.</p>
+    } @else {
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Producto</th>
+              <th scope="col">Categoría</th>
+              <th scope="col" class="numero">Unidades vendidas</th>
+              <th scope="col" class="numero">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (fila of reporte.filas; track fila.id) {
+              <tr>
+                <th scope="row">{{ fila.name }}</th>
+                <td>{{ fila.categoria }}</td>
+                <td class="numero">{{ fila.cantidad }}</td>
+                <td class="numero">{{ fila.total | currency:'PEN':'S/ ':'1.2-2' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="estado">Aún no hay ventas registradas.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>

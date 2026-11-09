@@ -1,1 +1,20 @@
-<p>inicio works!</p>
+<section class="bienvenida" [class.con-reporte]="auth.tienePermiso('REPORTES_VER')" aria-labelledby="titulo-inicio">
+  <h2 id="titulo-inicio">Bienvenido a PharmaSoft</h2>
+  <p>Selecciona un módulo del menú para comenzar.</p>
+  <a class="acceso" routerLink="/categorias">Ir a Categorías</a>
+</section>
+
+@if (auth.tienePermiso('REPORTES_VER')) {
+  @defer (on viewport) {
+    <app-mas-vendidos />
+  } @placeholder {
+    <section class="estado-reporte" aria-label="Productos más vendidos">
+      <h3>Productos más vendidos</h3>
+      <p>Consulta las unidades y los importes de tus ventas.</p>
+    </section>
+  } @loading (minimum 300ms) {
+    <p class="estado-reporte" role="status">Cargando reporte...</p>
+  } @error {
+    <p class="estado-reporte error" role="alert">No se pudo cargar el reporte. Recarga la página para volver a intentarlo.</p>
+  }
+}

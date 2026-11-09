@@ -1,0 +1,14 @@
+:host { display: block; }
+.reporte { overflow: hidden; border: 1px solid #d9e2ef; border-radius: 14px; background: #fff; }
+header { padding: 20px 24px; }
+h3 { margin: 0 0 8px; color: #0f2e5c; }
+header p { margin: 0; color: #64748b; }
+.tabla-contenedor { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #0f2e5c; color: #fff; }
+th, td { padding: 14px 20px; text-align: left; }
+tbody th { font-weight: 500; }
+tbody tr + tr { border-top: 1px solid #e2e8f0; }
+.numero { text-align: right; white-space: nowrap; }
+.estado { margin: 0; padding: 24px; color: #64748b; }
+.error { color: #991b1b; background: #fef2f2; }

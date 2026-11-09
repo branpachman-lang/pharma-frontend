@@ -1,0 +1,13 @@
+:host { display: block; }
+.bienvenida { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 24px 0; }
+/* El reporte queda después de la bienvenida y entra en pantalla al desplazarse. */
+.bienvenida.con-reporte { min-height: calc(100svh - 88px); justify-content: center; }
+h2 { margin: 0; font-size: clamp(1.5rem, 3vw, 2.25rem); }
+.bienvenida p { margin: 0; color: #64748b; line-height: 1.6; }
+.acceso { padding: 12px 18px; border-radius: 8px; background: #0f2e5c; color: #fff; text-decoration: none; font-weight: 600; }
+.acceso:hover { background: #1d477c; }
+.acceso:focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; }
+.estado-reporte { margin: 24px 0 0; padding: 24px; border: 1px solid #d9e2ef; border-radius: 14px; background: #fff; }
+.estado-reporte h3 { margin: 0 0 8px; color: #0f2e5c; }
+.estado-reporte p { margin: 0; color: #64748b; }
+.error { border-color: #fecaca; background: #fef2f2; color: #991b1b; }
