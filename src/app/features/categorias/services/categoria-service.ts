@@ -12,9 +12,9 @@ export class CategoriaService {
   private readonly url = `${environment.apiUrl}/categorias`;
 
   listar(pagina = 0, tamanio = 10, ordenarPor: 'id' | 'nombre' | 'estado' = 'nombre',
-    direccion: 'asc' | 'desc' = 'asc'): Observable<PaginaResponse<Categoria>> {
+    direccion: 'asc' | 'desc' = 'asc', soloActivas = false): Observable<PaginaResponse<Categoria>> {
     const params = new HttpParams().set('pagina', pagina).set('tamanio', tamanio)
-      .set('ordenarPor', ordenarPor).set('direccion', direccion);
+      .set('ordenarPor', ordenarPor).set('direccion', direccion).set('soloActivas', soloActivas);
     return this.http.get<PaginaResponse<Categoria> | Categoria[]>(this.url, { params }).pipe(
       map(respuesta => {
         if (!Array.isArray(respuesta)) {
@@ -28,7 +28,7 @@ export class CategoriaService {
 
         // Compatibilidad con la API anterior, que ignora los parámetros y devuelve un arreglo.
         const sentido = direccion === 'asc' ? 1 : -1;
-        const categorias = [...respuesta].sort((a, b) => {
+        const categorias = respuesta.filter(c => !soloActivas || c.estado).sort((a, b) => {
           const diferencia = ordenarPor === 'nombre'
             ? a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
             : Number(a[ordenarPor]) - Number(b[ordenarPor]);

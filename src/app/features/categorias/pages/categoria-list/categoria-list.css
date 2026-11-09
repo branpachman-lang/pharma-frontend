@@ -1,6 +1,6 @@
 .encabezado { display: flex; justify-content: space-between; align-items: center; }
 .controles { display: flex; align-items: center; gap: 10px; margin: 12px 0 18px; flex-wrap: wrap; }
-.controles input { padding: 9px; width: min(100%, 390px); }
+.controles input[type="search"] { padding: 9px; width: min(100%, 390px); }
 .controles select { padding: 9px; }
 .tabla-contenedor { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; background: white; }

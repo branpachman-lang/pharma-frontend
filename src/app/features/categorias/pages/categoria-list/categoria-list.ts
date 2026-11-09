@@ -27,6 +27,7 @@ export class CategoriaList implements OnInit {
   protected readonly ordenarPor = signal<'id' | 'nombre' | 'estado'>('nombre');
   protected readonly direccion = signal<'asc' | 'desc'>('asc');
   protected readonly filtro = signal('');
+  protected readonly mostrarInactivas = signal(false);
   protected readonly cargando = signal(false);
   protected readonly pendiente = signal<Categoria | null>(null);
   protected readonly eliminando = signal(false);
@@ -44,7 +45,7 @@ export class CategoriaList implements OnInit {
   cargar(): void {
     this.solicitud?.unsubscribe();
     this.cargando.set(true);
-    this.solicitud = this.servicio.listar(this.pagina(), this.tamanio(), this.ordenarPor(), this.direccion())
+    this.solicitud = this.servicio.listar(this.pagina(), this.tamanio(), this.ordenarPor(), this.direccion(), !this.mostrarInactivas())
       .subscribe({
         next: datos => { this.respuesta.set(datos); this.cargando.set(false); },
         error: (err: HttpErrorResponse) => {
@@ -58,6 +59,12 @@ export class CategoriaList implements OnInit {
     const valor = Number((event.target as HTMLSelectElement).value);
     if (![5, 10, 20].includes(valor)) return;
     this.tamanio.set(valor);
+    this.pagina.set(0);
+    this.cargar();
+  }
+
+  cambiarVisibilidad(event: Event): void {
+    this.mostrarInactivas.set((event.target as HTMLInputElement).checked);
     this.pagina.set(0);
     this.cargar();
   }

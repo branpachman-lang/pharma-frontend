@@ -38,4 +38,15 @@ describe('CategoriaList', () => {
 
     expect(enlace?.getAttribute('href')).toBe('/productos?categoriaId=4');
   });
+
+  it('consulta activas por defecto y permite revisar las bajas sin filtrar solo una página', () => {
+    const servicio = TestBed.inject(CategoriaService);
+    const listar = vi.spyOn(servicio, 'listar');
+    component.cargar();
+    expect(listar).toHaveBeenLastCalledWith(0, 10, 'nombre', 'asc', true);
+    const checkbox: HTMLInputElement = fixture.nativeElement.querySelector('input[type="checkbox"]');
+    checkbox.checked = true;
+    checkbox.dispatchEvent(new Event('change'));
+    expect(listar).toHaveBeenLastCalledWith(0, 10, 'nombre', 'asc', false);
+  });
 });

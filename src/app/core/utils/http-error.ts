@@ -7,7 +7,9 @@ export function mensajeError(err: HttpErrorResponse): string {
   }
 
   const respuesta = err.error as Partial<ErrorResponse> | null;
-  return respuesta?.message || `Error ${err.status}: ${err.statusText}`;
+  const mensaje = respuesta?.message || `Error ${err.status}: ${err.statusText}`;
+  const requestId = respuesta?.requestId || err.headers.get('X-Request-Id');
+  return requestId ? `${mensaje} Código de seguimiento: ${requestId}` : mensaje;
 }
 
 export function erroresDeValidacion(err: HttpErrorResponse): Record<string, string> {

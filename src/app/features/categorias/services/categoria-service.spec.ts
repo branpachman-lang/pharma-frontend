@@ -52,6 +52,15 @@ describe('CategoriaService', () => {
     expect(resultado).toEqual(pagina);
   });
 
+  it('solicita solo activas y aplica el mismo filtro al contrato antiguo', () => {
+    let resultado: PaginaResponse<Categoria> | undefined;
+    service.listar(0, 10, 'nombre', 'asc', true).subscribe(datos => resultado = datos);
+    const peticion = http.expectOne(req => req.params.get('soloActivas') === 'true');
+    peticion.flush([categoria(1, 'Activa'), { ...categoria(2, 'Baja'), estado: false }]);
+    expect(resultado?.contenido.map(c => c.id)).toEqual([1]);
+    expect(resultado?.totalElementos).toBe(1);
+  });
+
   it('reúne todas las páginas para el selector de productos', () => {
     let nombres: string[] = [];
     service.listarTodas().subscribe(categorias => nombres = categorias.map(c => c.nombre));

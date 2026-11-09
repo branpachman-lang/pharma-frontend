@@ -45,6 +45,9 @@ Thumbs.db
 
 # Informes y evidencias locales de las practicas
 /docs/
+!/docs/
+/docs/*
+!/docs/s13/
 
 # Colecciones exportadas de Postman
 /postman/*.json
