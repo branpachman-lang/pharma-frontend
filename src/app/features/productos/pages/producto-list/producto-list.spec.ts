@@ -29,8 +29,8 @@ describe('ProductoList', () => {
         } },
         { provide: ProductoService, useValue: {
           bajaLogicaDisponible: signal(true),
-          listar: (pagina: number, tamanio: number) => {
-            solicitud = [pagina, tamanio];
+          listarPagina: ({ pagina, tamanio }: { pagina: number; tamanio: number }, categoriaId: number) => {
+            solicitud = [pagina, tamanio, categoriaId];
             return of({ contenido: [{
               id: 19, nombre: 'Azúcar', descripcion: null, precio: 23.5, stock: 15,
               estado: true, categoriaId: 4, categoriaNombre: 'Abarrotes',
@@ -47,15 +47,15 @@ describe('ProductoList', () => {
     fixture.detectChanges();
   });
 
-  it('abre la categoría elegida con los primeros 100 productos cargados', () => {
+  it('envía la categoría al servidor y muestra la página recibida', () => {
     const contenido: HTMLElement = fixture.nativeElement;
     const selector = contenido.querySelector<HTMLSelectElement>('#categoria-filtro');
-    const tamanio = contenido.querySelector<HTMLSelectElement>('#tamanio-productos');
+    const tamanio = contenido.querySelector<HTMLSelectElement>('app-paginador select');
 
-    expect(solicitud).toEqual([0, 100]);
+    expect(solicitud).toEqual([0, 20, 4]);
     expect(selector?.value).toBe('4');
-    expect(tamanio?.value).toBe('100');
-    expect(contenido.textContent).toContain('Mostrando productos de la categoría Abarrotes en los primeros 100 registros');
+    expect(tamanio?.value).toBe('20');
+    expect(contenido.querySelector('[data-testid="resumen-paginacion"]')?.textContent).toContain('1–1 de 1');
     expect(contenido.textContent).toContain('Azúcar');
   });
 

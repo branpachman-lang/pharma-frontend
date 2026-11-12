@@ -1,12 +1,13 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Component, computed, DestroyRef, inject, input, linkedSignal, OnInit, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PaginaResponse } from '../../../../core/models/pagina-response';
 import { NotificacionService } from '../../../../core/services/notificacion.service';
 import { mensajeError } from '../../../../core/utils/http-error';
+import { idPositivo, numeroPagina, tamanioPagina, TAMANIOS_PAGINA } from '../../../../core/utils/parametros-pagina';
+import { Paginador } from '../../../../shared/components/paginador/paginador';
 import { SiPermiso } from '../../../../shared/directives/si-permiso';
 import { Categoria } from '../../../categorias/models/categoria.model';
 import { CategoriaService } from '../../../categorias/services/categoria-service';
@@ -15,104 +16,82 @@ import { ProductoService } from '../../services/producto-service';
 
 @Component({
   selector: 'app-producto-list',
-  imports: [RouterLink, CurrencyPipe, SiPermiso],
+  imports: [RouterLink, CurrencyPipe, SiPermiso, Paginador],
   templateUrl: './producto-list.html',
   styleUrl: './producto-list.css',
 })
 export class ProductoList implements OnInit {
-  readonly categoriaId = input<string>();
+  readonly categoriaId = input(null, { transform: idPositivo });
+  readonly pagina = input(0, { transform: numeroPagina });
+  readonly tamanio = input(20, { transform: (valor: unknown) => tamanioPagina(valor, 20) });
+  readonly orden = input('nombre', {
+    transform: (valor: unknown): OrdenProducto => valor === 'precio' || valor === 'stock' || valor === 'id'
+      ? valor : 'nombre',
+  });
+  readonly dir = input('asc', { transform: (valor: unknown): Direccion => valor === 'desc' ? 'desc' : 'asc' });
+
+  private readonly router = inject(Router);
+  private readonly ruta = inject(ActivatedRoute);
   protected readonly productoService = inject(ProductoService);
   private readonly categoriaService = inject(CategoriaService);
   private readonly avisos = inject(NotificacionService);
   private readonly destroyRef = inject(DestroyRef);
-  private solicitud?: Subscription;
-
-  protected readonly pagina = signal(0);
-  protected readonly tamanio = signal(10);
-  protected readonly ordenarPor = signal<OrdenProducto>('nombre');
-  protected readonly direccion = signal<Direccion>('asc');
-  protected readonly resultado = signal<PaginaResponse<Producto> | null>(null);
+  protected readonly tamanios = TAMANIOS_PAGINA;
   protected readonly categorias = signal<Categoria[]>([]);
-  protected readonly categoriaFiltro = signal<number | null>(null);
-  protected readonly cargando = signal(false);
   protected readonly errorCategorias = signal<string | null>(null);
-  protected readonly errorProductos = signal<string | null>(null);
   protected readonly pendiente = signal<Producto | null>(null);
   protected readonly eliminando = signal(false);
 
-  protected readonly productos = computed(() => {
-    const filtro = this.categoriaFiltro();
-    const lista = this.resultado()?.contenido ?? [];
-    return filtro === null ? lista : lista.filter(producto => producto.categoriaId === filtro);
+  private readonly carga = rxResource({
+    params: () => ({
+      pagina: this.pagina(),
+      tamanio: this.tamanio(),
+      ordenarPor: this.orden(),
+      direccion: this.dir(),
+      categoriaId: this.categoriaId(),
+    }),
+    stream: ({ params: { categoriaId, ...consulta } }) => this.productoService.listarPagina(consulta, categoriaId),
   });
-  protected readonly nombreCategoriaFiltro = computed(() =>
-    this.categorias().find(categoria => categoria.id === this.categoriaFiltro())?.nombre
-      ?? `ID ${this.categoriaFiltro()}`);
-
-  constructor() {
-    this.destroyRef.onDestroy(() => this.solicitud?.unsubscribe());
-  }
+  protected readonly cargando = this.carga.isLoading;
+  protected readonly errorProductos = computed(() => {
+    const error = this.carga.error();
+    return error ? mensajeError(error as HttpErrorResponse) : null;
+  });
+  protected readonly resultado = linkedSignal<PaginaResponse<Producto> | undefined, PaginaResponse<Producto> | undefined>({
+    source: () => this.carga.hasValue() ? this.carga.value() : undefined,
+    computation: (pagina, anterior) => pagina ?? anterior?.value,
+  });
 
   ngOnInit(): void {
-    const categoriaId = Number(this.categoriaId());
-    if (this.categoriaId() && Number.isSafeInteger(categoriaId) && categoriaId > 0) {
-      this.categoriaFiltro.set(categoriaId);
-      this.tamanio.set(100);
-    }
     this.categoriaService.listarTodas().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: categorias => this.categorias.set(categorias),
       error: (err: HttpErrorResponse) => this.errorCategorias.set(mensajeError(err)),
     });
-    this.cargar();
   }
 
-  cargar(): void {
-    this.solicitud?.unsubscribe();
-    this.cargando.set(true);
-    this.errorProductos.set(null);
-    this.solicitud = this.productoService
-      .listar(this.pagina(), this.tamanio(), this.ordenarPor(), this.direccion())
-      .subscribe({
-        next: datos => {
-          this.resultado.set(datos);
-          this.cargando.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.errorProductos.set(mensajeError(err));
-          this.cargando.set(false);
-        },
-      });
+  protected cargar(): void {
+    this.carga.reload();
   }
 
-  cambiarTamanio(event: Event): void {
-    const valor = Number((event.target as HTMLSelectElement).value);
-    if (![5, 10, 20, 100].includes(valor)) return;
-    this.tamanio.set(valor);
-    this.pagina.set(0);
-    this.cargar();
+  protected cambiarTamanio(tamanio: number): void {
+    this.navegar({ tamanio, pagina: 0 });
   }
 
-  ordenar(campo: OrdenProducto): void {
-    if (this.ordenarPor() === campo) {
-      this.direccion.update(actual => actual === 'asc' ? 'desc' : 'asc');
-    } else {
-      this.ordenarPor.set(campo);
-      this.direccion.set('asc');
-    }
-    this.pagina.set(0);
-    this.cargar();
+  protected ordenar(campo: OrdenProducto): void {
+    const dir = this.orden() === campo && this.dir() === 'asc' ? 'desc' : 'asc';
+    this.navegar({ orden: campo, dir, pagina: 0 });
   }
 
-  cambiarPagina(desplazamiento: number): void {
-    const destino = this.pagina() + desplazamiento;
-    if (destino < 0 || destino >= (this.resultado()?.totalPaginas ?? 0)) return;
-    this.pagina.set(destino);
-    this.cargar();
+  protected irAPagina(pagina: number): void {
+    this.navegar({ pagina });
   }
 
-  filtrarPorCategoria(event: Event): void {
-    const valor = (event.target as HTMLSelectElement).value;
-    this.categoriaFiltro.set(valor ? Number(valor) : null);
+  protected filtrarPorCategoria(valor: string): void {
+    this.navegar({ categoriaId: idPositivo(valor), pagina: 0 });
+  }
+
+  private navegar(queryParams: Record<string, string | number | null>): void {
+    void this.router.navigate([], { relativeTo: this.ruta, queryParams, queryParamsHandling: 'merge' });
   }
 
   darDeBaja(producto: Producto): void {

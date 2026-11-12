@@ -30,11 +30,8 @@
 
   <div class="resultados-barra no-imprimir">
     <span>{{ respuesta()?.totalElementos ?? 0 }} {{ respuesta()?.totalElementos === 1 ? 'venta' : 'ventas' }}</span>
-    <div class="opciones"><label for="tamanio-ventas">Filas por página</label>
-      <select id="tamanio-ventas" [value]="tamanio()" (change)="cambiarTamanio($event)">
-        <option value="5">5</option><option value="10">10</option><option value="20">20</option>
-      </select>
-      <button type="button" class="boton" [disabled]="!respuesta()?.contenido?.length" (click)="imprimirListado()">Imprimir esta página</button>
+    <div class="opciones">
+      <button type="button" class="boton" [disabled]="cargando() || !!error() || !respuesta()?.contenido?.length" (click)="imprimirListado()">Imprimir esta página</button>
     </div>
   </div>
 
@@ -43,14 +40,14 @@
       <button type="button" class="boton" (click)="cargar()">Reintentar</button></div>
   }
   @if (cargando()) { <p class="estado-carga">Cargando ventas...</p> }
-  @else if (respuesta(); as datos) {
-    <div class="tabla-contenedor"><table>
+  @if (respuesta(); as datos) {
+    <div class="tabla-contenedor" [attr.aria-busy]="cargando()"><table>
       <thead><tr>
-        <th><button type="button" class="orden" (click)="ordenar('id')">N.º {{ ordenarPor() === 'id' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
-        <th><button type="button" class="orden" (click)="ordenar('fecha')">Fecha {{ ordenarPor() === 'fecha' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+        <th><button type="button" class="orden" (click)="ordenar('id')">N.º {{ orden() === 'id' ? (dir() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+        <th><button type="button" class="orden" (click)="ordenar('fecha')">Fecha {{ orden() === 'fecha' ? (dir() === 'asc' ? '↑' : '↓') : '' }}</button></th>
         <th>Cliente</th>
-        <th><button type="button" class="orden" (click)="ordenar('estado')">Estado {{ ordenarPor() === 'estado' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
-        <th class="monto"><button type="button" class="orden" (click)="ordenar('total')">Total {{ ordenarPor() === 'total' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+        <th><button type="button" class="orden" (click)="ordenar('estado')">Estado {{ orden() === 'estado' ? (dir() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+        <th class="monto"><button type="button" class="orden" (click)="ordenar('total')">Total {{ orden() === 'total' ? (dir() === 'asc' ? '↑' : '↓') : '' }}</button></th>
         <th class="no-imprimir">Acciones</th>
       </tr></thead>
       <tbody>
@@ -69,11 +66,9 @@
       <tfoot><tr><td colspan="4">Total de ventas registradas en esta página</td>
         <td class="monto">{{ totalPagina() | currency:'PEN':'S/ ':'1.2-2' }}</td><td class="no-imprimir"></td></tr></tfoot>
     </table></div>
-    <nav class="paginacion no-imprimir" aria-label="Páginas de ventas">
-      <button type="button" class="boton" [disabled]="pagina() === 0" (click)="cambiarPagina(-1)">Anterior</button>
-      <span>Página {{ datos.totalPaginas ? datos.pagina + 1 : 0 }} de {{ datos.totalPaginas }} · {{ datos.totalElementos }} ventas</span>
-      <button type="button" class="boton" [disabled]="datos.ultima" (click)="cambiarPagina(1)">Siguiente</button>
-    </nav>
+    <app-paginador class="no-imprimir" [pagina]="datos.pagina" [totalPaginas]="datos.totalPaginas"
+      [totalElementos]="datos.totalElementos" [tamanio]="datos.tamanio" [tamanios]="tamanios"
+      [deshabilitado]="cargando()" (cambioPagina)="irAPagina($event)" (cambioTamanio)="cambiarTamanio($event)" />
     <p class="nota no-imprimir">El total mostrado corresponde solo a las ventas registradas de esta página.</p>
   }
 </section>

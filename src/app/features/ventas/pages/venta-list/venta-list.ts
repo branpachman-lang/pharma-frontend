@@ -1,25 +1,24 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, computed, DestroyRef, effect, inject, input, linkedSignal, OnInit, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PaginaResponse } from '../../../../core/models/pagina-response';
 import { NotificacionService } from '../../../../core/services/notificacion.service';
 import { listarTodasPaginas } from '../../../../core/utils/listar-todas-paginas';
 import { mensajeError } from '../../../../core/utils/http-error';
+import { idPositivo, numeroPagina, tamanioPagina, TAMANIOS_PAGINA } from '../../../../core/utils/parametros-pagina';
+import { Paginador } from '../../../../shared/components/paginador/paginador';
 import { SiPermiso } from '../../../../shared/directives/si-permiso';
 import { Cliente } from '../../../clientes/models/cliente.model';
 import { ClienteService } from '../../../clientes/services/cliente-service';
 import { DireccionVenta, EstadoVenta, FiltroVentas, OrdenVenta, Venta } from '../../models/venta.model';
 import { VentaService } from '../../services/venta-service';
 
-const FILTRO_VACIO: FiltroVentas = { clienteId: null, estado: null, desde: null, hasta: null };
-
 @Component({
   selector: 'app-venta-list',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe, SiPermiso],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe, SiPermiso, Paginador],
   templateUrl: './venta-list.html',
   styleUrl: './venta-list.css',
 })
@@ -29,7 +28,22 @@ export class VentaList implements OnInit {
   private readonly clientesService = inject(ClienteService);
   private readonly avisos = inject(NotificacionService);
   private readonly destroyRef = inject(DestroyRef);
-  private solicitud?: Subscription;
+  private readonly router = inject(Router);
+  private readonly ruta = inject(ActivatedRoute);
+
+  readonly pagina = input(0, { transform: numeroPagina });
+  readonly tamanio = input(10, { transform: (valor: unknown) => tamanioPagina(valor, 10) });
+  readonly orden = input('fecha', {
+    transform: (valor: unknown): OrdenVenta => valor === 'id' || valor === 'total' || valor === 'estado'
+      ? valor : 'fecha',
+  });
+  readonly dir = input('desc', { transform: (valor: unknown): DireccionVenta => valor === 'asc' ? 'asc' : 'desc' });
+  readonly clienteId = input(null, { transform: idPositivo });
+  readonly estado = input(null, {
+    transform: (valor: unknown): EstadoVenta | null => valor === 'REGISTRADA' || valor === 'ANULADA' ? valor : null,
+  });
+  readonly desde = input<string>();
+  readonly hasta = input<string>();
 
   protected readonly form = this.fb.group({
     clienteId: this.fb.control(''),
@@ -38,18 +52,45 @@ export class VentaList implements OnInit {
     hasta: this.fb.control(''),
   });
   protected readonly clientes = signal<Cliente[]>([]);
-  protected readonly respuesta = signal<PaginaResponse<Venta> | null>(null);
-  protected readonly aplicado = signal<FiltroVentas>({ ...FILTRO_VACIO });
-  protected readonly pagina = signal(0);
-  protected readonly tamanio = signal(10);
-  protected readonly ordenarPor = signal<OrdenVenta>('fecha');
-  protected readonly direccion = signal<DireccionVenta>('desc');
-  protected readonly cargando = signal(false);
-  protected readonly error = signal<string | null>(null);
+  protected readonly tamanios = TAMANIOS_PAGINA;
+  protected readonly aplicado = computed<FiltroVentas>(() => ({
+    clienteId: this.clienteId(),
+    estado: this.estado(),
+    desde: this.desde() || null,
+    hasta: this.hasta() || null,
+  }));
   protected readonly filtroError = signal<string | null>(null);
   protected readonly fechaImpresion = signal(new Date());
+  private readonly carga = rxResource({
+    params: () => ({
+      filtros: this.aplicado(),
+      pagina: this.pagina(),
+      tamanio: this.tamanio(),
+      orden: this.orden(),
+      dir: this.dir(),
+    }),
+    stream: ({ params }) => this.ventas.buscar(params.filtros, params.pagina, params.tamanio, params.orden, params.dir),
+  });
+  protected readonly cargando = this.carga.isLoading;
+  protected readonly error = computed(() => {
+    const error = this.carga.error();
+    return error ? mensajeError(error as HttpErrorResponse) : null;
+  });
+  protected readonly respuesta = linkedSignal<PaginaResponse<Venta> | undefined, PaginaResponse<Venta> | undefined>({
+    source: () => this.carga.hasValue() ? this.carga.value() : undefined,
+    computation: (pagina, anterior) => pagina ?? anterior?.value,
+  });
 
-  constructor() { this.destroyRef.onDestroy(() => this.solicitud?.unsubscribe()); }
+  constructor() {
+    effect(() => {
+      const { clienteId, estado, desde, hasta } = this.aplicado();
+      this.form.setValue({
+        clienteId: clienteId === null ? '' : String(clienteId),
+        estado: estado ?? '', desde: desde ?? '', hasta: hasta ?? '',
+      });
+      this.filtroError.set(null);
+    });
+  }
 
   ngOnInit(): void {
     listarTodasPaginas(pagina => this.clientesService.listar(pagina, 100))
@@ -58,7 +99,6 @@ export class VentaList implements OnInit {
         next: clientes => this.clientes.set(clientes),
         error: (err: HttpErrorResponse) => this.avisos.mostrar(mensajeError(err), 'error'),
       });
-    this.cargar();
   }
 
   protected aplicarFiltros(): void {
@@ -68,68 +108,37 @@ export class VentaList implements OnInit {
       return;
     }
     this.filtroError.set(null);
-    this.aplicado.set({
-      clienteId: clienteId ? Number(clienteId) : null,
-      estado: estado ? estado as EstadoVenta : null,
-      desde: desde || null,
-      hasta: hasta || null,
-    });
-    this.pagina.set(0);
-    this.cargar();
+    this.navegar({ clienteId: idPositivo(clienteId), estado: estado || null,
+      desde: desde || null, hasta: hasta || null, pagina: 0 });
   }
 
   protected limpiarFiltros(): void {
     this.form.reset();
     this.filtroError.set(null);
-    this.aplicado.set({ ...FILTRO_VACIO });
-    this.pagina.set(0);
-    this.cargar();
+    this.navegar({ clienteId: null, estado: null, desde: null, hasta: null, pagina: 0 });
   }
 
   protected cargar(): void {
-    this.solicitud?.unsubscribe();
-    this.cargando.set(true);
-    this.error.set(null);
-    this.respuesta.set(null);
-    this.solicitud = this.ventas.buscar(this.aplicado(), this.pagina(), this.tamanio(),
-      this.ordenarPor(), this.direccion()).subscribe({
-      next: respuesta => {
-        this.respuesta.set(respuesta);
-        this.cargando.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
-        const mensaje = mensajeError(err);
-        this.error.set(mensaje);
-        this.avisos.mostrar(mensaje, 'error');
-        this.cargando.set(false);
-      },
-    });
+    this.carga.reload();
   }
 
-  protected cambiarTamanio(evento: Event): void {
-    const tamanio = Number((evento.target as HTMLSelectElement).value);
-    if (![5, 10, 20].includes(tamanio)) return;
-    this.tamanio.set(tamanio);
-    this.pagina.set(0);
-    this.cargar();
+  protected cambiarTamanio(tamanio: number): void {
+    this.navegar({ tamanio, pagina: 0 });
   }
 
   protected ordenar(campo: OrdenVenta): void {
-    if (this.ordenarPor() === campo) {
-      this.direccion.update(actual => actual === 'asc' ? 'desc' : 'asc');
-    } else {
-      this.ordenarPor.set(campo);
-      this.direccion.set(campo === 'fecha' || campo === 'id' ? 'desc' : 'asc');
-    }
-    this.pagina.set(0);
-    this.cargar();
+    const dir = this.orden() === campo
+      ? (this.dir() === 'asc' ? 'desc' : 'asc')
+      : (campo === 'fecha' || campo === 'id' ? 'desc' : 'asc');
+    this.navegar({ orden: campo, dir, pagina: 0 });
   }
 
-  protected cambiarPagina(paso: number): void {
-    const destino = this.pagina() + paso;
-    if (destino < 0 || destino >= (this.respuesta()?.totalPaginas ?? 0)) return;
-    this.pagina.set(destino);
-    this.cargar();
+  protected irAPagina(pagina: number): void {
+    this.navegar({ pagina });
+  }
+
+  private navegar(queryParams: Record<string, string | number | null>): void {
+    void this.router.navigate([], { relativeTo: this.ruta, queryParams, queryParamsHandling: 'merge' });
   }
 
   protected totalPagina(): number {

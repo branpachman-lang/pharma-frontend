@@ -6,3 +6,10 @@ export interface PaginaResponse<T> {
   totalPaginas: number;
   ultima: boolean;
 }
+
+export interface ConsultaPagina<Orden extends string = string> {
+  pagina: number;
+  tamanio: number;
+  ordenarPor: Orden;
+  direccion: 'asc' | 'desc';
+}

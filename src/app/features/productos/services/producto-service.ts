@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { inject, Service, signal } from '@angular/core';
 import { map, Observable, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { PaginaResponse } from '../../../core/models/pagina-response';
+import { ConsultaPagina, PaginaResponse } from '../../../core/models/pagina-response';
 import { Direccion, OrdenProducto, Producto, ProductoRequest } from '../models/producto.model';
 
 @Service()
@@ -15,8 +15,14 @@ export class ProductoService {
 
   listar(pagina = 0, tamanio = 10, ordenarPor: OrdenProducto = 'nombre',
     direccion: Direccion = 'asc'): Observable<PaginaResponse<Producto>> {
-    const params = new HttpParams().set('pagina', pagina).set('tamanio', tamanio)
+    return this.listarPagina({ pagina, tamanio, ordenarPor, direccion });
+  }
+
+  listarPagina({ pagina, tamanio, ordenarPor, direccion }: ConsultaPagina<OrdenProducto>,
+    categoriaId: number | null = null): Observable<PaginaResponse<Producto>> {
+    let params = new HttpParams().set('pagina', pagina).set('tamanio', tamanio)
       .set('ordenarPor', ordenarPor).set('direccion', direccion);
+    if (categoriaId !== null) params = params.set('categoriaId', categoriaId);
     return this.http.get<PaginaResponse<Producto> | Producto[]>(this.url, { params }).pipe(
       map(respuesta => {
         if (!Array.isArray(respuesta)) {
@@ -30,12 +36,13 @@ export class ProductoService {
 
         this.bajaLogicaDisponible.set(false);
         const sentido = direccion === 'asc' ? 1 : -1;
-        const productos = [...respuesta].sort((a, b) => {
-          const diferencia = ordenarPor === 'nombre'
-            ? a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
-            : Number(a[ordenarPor]) - Number(b[ordenarPor]);
-          return diferencia ? diferencia * sentido : a.id - b.id;
-        });
+        const productos = respuesta.filter(producto => categoriaId === null || producto.categoriaId === categoriaId)
+          .sort((a, b) => {
+            const diferencia = ordenarPor === 'nombre'
+              ? a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+              : Number(a[ordenarPor]) - Number(b[ordenarPor]);
+            return diferencia ? diferencia * sentido : a.id - b.id;
+          });
         const totalPaginas = Math.ceil(productos.length / tamanio);
         return {
           contenido: productos.slice(pagina * tamanio, (pagina + 1) * tamanio),

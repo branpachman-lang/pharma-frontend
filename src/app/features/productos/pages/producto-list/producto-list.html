@@ -5,48 +5,45 @@
   </div>
 
   <div class="controles">
-    <label for="categoria-filtro">Categoría (esta página)</label>
-    <select id="categoria-filtro" [value]="categoriaFiltro() ?? ''" (change)="filtrarPorCategoria($event)">
-      <option value="" [selected]="categoriaFiltro() === null">Todas</option>
+    <label for="categoria-filtro">Categoría</label>
+    <select id="categoria-filtro" #categoria (change)="filtrarPorCategoria(categoria.value)">
+      <option value="" [selected]="categoriaId() === null">Todas</option>
       @for (c of categorias(); track c.id) {
-        <option [value]="c.id" [selected]="categoriaFiltro() === c.id">{{ c.nombre }}</option>
+        <option [value]="c.id" [selected]="categoriaId() === c.id">{{ c.nombre }}</option>
       }
     </select>
-    <label for="tamanio-productos">Filas por página</label>
-    <select id="tamanio-productos" [value]="tamanio()" (change)="cambiarTamanio($event)">
-      <option value="5">5</option><option value="10">10</option><option value="20">20</option><option value="100">100</option>
-    </select>
   </div>
-
-  @if (categoriaFiltro() !== null && tamanio() === 100 && pagina() === 0) {
-    <p class="nota-filtro">Mostrando productos de la categoría {{ nombreCategoriaFiltro() }} en los primeros 100 registros.</p>
-  }
 
   @if (!productoService.bajaLogicaDisponible() && resultado()) {
     <p class="aviso">El backend activo usa el contrato anterior. Reinícialo con los cambios actuales para habilitar la baja lógica.</p>
   }
   @if (errorCategorias()) { <p class="error" role="alert">{{ errorCategorias() }}</p> }
-  @if (errorProductos()) { <p class="error" role="alert">{{ errorProductos() }}</p> }
+  @if (errorProductos(); as error) {
+    <p class="error" role="alert">{{ error }}
+      <button type="button" class="boton" (click)="cargar()">Reintentar</button>
+    </p>
+  }
 
   @if (cargando()) {
     <p>Cargando productos...</p>
-  } @else {
-    <div class="tabla-contenedor">
-      <table>
+  }
+  @if (resultado(); as datos) {
+    <div class="tabla-contenedor" [attr.aria-busy]="cargando()">
+      <table data-testid="tabla-productos">
         <thead><tr>
-          <th><button type="button" class="orden" (click)="ordenar('nombre')">Nombre {{ ordenarPor() === 'nombre' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+          <th><button type="button" class="orden" (click)="ordenar('nombre')">Nombre {{ orden() === 'nombre' ? (dir() === 'asc' ? '↑' : '↓') : '' }}</button></th>
           <th>Categoría</th>
-          <th><button type="button" class="orden" (click)="ordenar('precio')">Precio {{ ordenarPor() === 'precio' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
-          <th><button type="button" class="orden" (click)="ordenar('stock')">Stock {{ ordenarPor() === 'stock' ? (direccion() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+          <th><button type="button" class="orden" (click)="ordenar('precio')">Precio {{ orden() === 'precio' ? (dir() === 'asc' ? '↑' : '↓') : '' }}</button></th>
+          <th><button type="button" class="orden" (click)="ordenar('stock')">Stock {{ orden() === 'stock' ? (dir() === 'asc' ? '↑' : '↓') : '' }}</button></th>
           <th>Estado</th><th *appSiPermiso="'CATALOGO_ESCRIBIR'">Acciones</th>
         </tr></thead>
         <tbody>
-          @for (p of productos(); track p.id) {
+          @for (p of datos.contenido; track p.id) {
             <tr>
               <td>{{ p.nombre }}</td>
               <td><span class="chip">{{ p.categoriaNombre }}</span></td>
               <td>{{ p.precio | currency: 'PEN' : 'S/ ' : '1.2-2' }}</td>
-              <td>{{ p.stock }}</td>
+              <td data-testid="stock-producto">{{ p.stock }}</td>
               <td><span class="badge" [class.inactivo]="!p.estado">{{ p.estado ? 'Activo' : 'Inactivo' }}</span></td>
               <td *appSiPermiso="'CATALOGO_ESCRIBIR'" class="acciones">
                 <a [routerLink]="[p.id, 'editar']" class="boton">Editar</a>
@@ -55,18 +52,14 @@
               </td>
             </tr>
           } @empty {
-            <tr><td colspan="6" class="vacio">{{ categoriaFiltro() === null ? 'No hay productos para mostrar.' : 'No hay productos de esta categoría en la página actual.' }}</td></tr>
+            <tr><td colspan="6" class="vacio">No hay productos para mostrar.</td></tr>
           }
         </tbody>
       </table>
     </div>
-    @if (resultado(); as datos) {
-      <div class="paginacion">
-        <button type="button" class="boton" [disabled]="pagina() === 0" (click)="cambiarPagina(-1)">Anterior</button>
-        <span>Página {{ datos.totalPaginas ? datos.pagina + 1 : 0 }} de {{ datos.totalPaginas }} · {{ datos.totalElementos }} productos</span>
-        <button type="button" class="boton" [disabled]="datos.ultima" (click)="cambiarPagina(1)">Siguiente</button>
-      </div>
-    }
+    <app-paginador [pagina]="datos.pagina" [totalPaginas]="datos.totalPaginas"
+      [totalElementos]="datos.totalElementos" [tamanio]="datos.tamanio" [tamanios]="tamanios"
+      [deshabilitado]="cargando()" (cambioPagina)="irAPagina($event)" (cambioTamanio)="cambiarTamanio($event)" />
   }
 </section>
 
