@@ -1,5 +1,7 @@
 <section>
   <h2>{{ esEdicion() ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+  @if (creadoPor(); as usuario) { <p>Creado por {{ usuario }}</p> }
+  @if (modificadoPor(); as usuario) { <p>Modificado por {{ usuario }}</p> }
 
   @if (error()) {
     <p class="alerta">{{ error() }}</p>

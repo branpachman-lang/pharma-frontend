@@ -26,6 +26,8 @@ export class ProductoForm implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly id = input<string>();
+  protected readonly creadoPor = signal<string | null>(null);
+  protected readonly modificadoPor = signal<string | null>(null);
   protected readonly categorias = signal<Categoria[]>([]);
   protected readonly categoriaOriginal = signal<number | null>(null);
   protected readonly cargando = signal(true);
@@ -63,6 +65,8 @@ export class ProductoForm implements OnInit {
       }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: ({ categorias, producto }) => {
           this.categorias.set(categorias);
+          this.creadoPor.set(producto.creadoPor ?? null);
+          this.modificadoPor.set(producto.modificadoPor ?? null);
           this.categoriaOriginal.set(producto.categoriaId);
           this.form.setValue({
             nombre: producto.nombre,

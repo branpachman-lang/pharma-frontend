@@ -15,6 +15,7 @@
       <dl class="datos">
         <div><dt>Fecha de venta</dt><dd>{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</dd></div>
         <div><dt>Cliente</dt><dd>{{ v.clienteNombre }}</dd></div>
+        @if (v.creadoPor; as vendedor) { <div><dt>Registrada por</dt><dd>{{ vendedor }}</dd></div> }
         @if (cliente(); as c) { <div><dt>DNI</dt><dd>{{ c.dni }}</dd></div> }
         <div><dt>Estado</dt><dd><span class="estado" [class.estado-anulada]="v.estado === 'ANULADA'">{{ v.estado }}</span></dd></div>
       </dl>

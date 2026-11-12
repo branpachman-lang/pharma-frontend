@@ -20,6 +20,8 @@ export class ClienteForm implements OnInit {
   private readonly avisos = inject(NotificacionService);
 
   readonly id = input<string>();
+  protected readonly creadoPor = signal<string | null>(null);
+  protected readonly modificadoPor = signal<string | null>(null);
   protected readonly cargando = signal(false);
   protected readonly guardando = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -44,6 +46,8 @@ export class ClienteForm implements OnInit {
     this.cargando.set(true);
     this.servicio.obtener(Number(id)).subscribe({
       next: (cliente) => {
+        this.creadoPor.set(cliente.creadoPor ?? null);
+        this.modificadoPor.set(cliente.modificadoPor ?? null);
         this.form.setValue({
           dni: cliente.dni,
           nombres: cliente.nombres,

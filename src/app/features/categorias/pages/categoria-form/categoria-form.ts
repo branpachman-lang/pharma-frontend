@@ -20,6 +20,8 @@ export class CategoriaForm implements OnInit {
   private readonly avisos = inject(NotificacionService);
 
   readonly id = input<string>();
+  protected readonly creadoPor = signal<string | null>(null);
+  protected readonly modificadoPor = signal<string | null>(null);
   protected readonly guardando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly erroresServidor = signal<Record<string, string>>({});
@@ -39,12 +41,15 @@ export class CategoriaForm implements OnInit {
     if (!id) return;
 
     this.servicio.obtener(Number(id)).subscribe({
-      next: (categoria) =>
+      next: (categoria) => {
+        this.creadoPor.set(categoria.creadoPor ?? null);
+        this.modificadoPor.set(categoria.modificadoPor ?? null);
         this.form.setValue({
           nombre: categoria.nombre,
           descripcion: categoria.descripcion ?? '',
           estado: categoria.estado,
-        }),
+        });
+      },
       error: (err: HttpErrorResponse) => this.error.set(mensajeError(err)),
     });
   }
