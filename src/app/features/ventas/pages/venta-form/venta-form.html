@@ -24,12 +24,12 @@
         } @else {
           <div class="buscador">
             <label for="buscar-cliente">Buscar cliente activo</label>
-            <input id="buscar-cliente" type="search" [formControl]="buscarCliente"
+            <input id="buscar-cliente" data-testid="buscar-cliente" type="search" [formControl]="buscarCliente"
               placeholder="Ej.: Huamán o 12345678" autocomplete="off" />
             @if (buscarCliente.value.trim()) {
               <ul class="resultados" aria-label="Resultados de clientes">
                 @for (cliente of clientesEncontrados(); track cliente.id) {
-                  <li><button type="button" (click)="elegirCliente(cliente)">
+                  <li><button type="button" data-testid="opcion-cliente" (click)="elegirCliente(cliente)">
                     <strong>{{ cliente.apellidos }}, {{ cliente.nombres }}</strong><span>DNI {{ cliente.dni }}</span>
                   </button></li>
                 } @empty { <li class="sin-resultados">Ningún cliente activo coincide con la búsqueda.</li> }
@@ -46,13 +46,14 @@
         <div class="bloque-titulo"><span class="numero-paso">2</span><div><h3>Productos</h3><p>Solo se ofrecen productos activos con stock.</p></div></div>
         <div class="buscador">
           <label for="buscar-producto">Buscar por nombre o categoría</label>
-          <input id="buscar-producto" type="search" [formControl]="buscarProducto"
+          <input id="buscar-producto" data-testid="buscar-producto" type="search" [formControl]="buscarProducto"
             (keydown.enter)="agregarPrimero($event)" placeholder="Escribe y pulsa Enter para agregar el primero"
             autocomplete="off" />
           @if (buscarProducto.value.trim()) {
             <ul class="resultados" aria-label="Resultados de productos">
               @for (producto of productosEncontrados(); track producto.id) {
-                <li><button type="button" (click)="agregarProducto(producto)">
+                <li><button type="button" data-testid="opcion-producto" [attr.data-stock]="producto.stock"
+                  (click)="agregarProducto(producto)">
                   <strong>{{ producto.nombre }}</strong>
                   <span>{{ producto.categoriaNombre }} · {{ producto.precio | currency:'PEN':'S/ ':'1.2-2' }} · Stock {{ producto.stock }}</span>
                   @if (cantidadEnDetalle(producto.id); as cantidad) { <em>En la venta: {{ cantidad }}</em> }
@@ -71,7 +72,7 @@
                 <tr [formGroupName]="i">
                   <td><strong>{{ lineas()[i]?.producto?.nombre }}</strong><small>{{ lineas()[i]?.producto?.categoriaNombre }}</small></td>
                   <td>{{ lineas()[i]?.precio | currency:'PEN':'S/ ':'1.2-2' }}</td>
-                  <td><input class="cantidad" type="number" min="1" step="1" formControlName="cantidad"
+                  <td><input class="cantidad" data-testid="cantidad" type="number" min="1" step="1" formControlName="cantidad"
                     [attr.aria-label]="'Cantidad de ' + (lineas()[i]?.producto?.nombre ?? 'producto')" />
                     @if (linea.controls.cantidad.touched && linea.controls.cantidad.invalid) {
                       <small class="error">Introduce un entero mayor que cero.</small>
@@ -88,7 +89,7 @@
                 <tr><td colspan="5" class="sin-detalles">Aún no hay productos. Usa el buscador para agregarlos.</td></tr>
               }
             </tbody>
-            <tfoot><tr><td colspan="3">Total estimado</td><td class="monto total">{{ total() | currency:'PEN':'S/ ':'1.2-2' }}</td><td></td></tr></tfoot>
+            <tfoot><tr><td colspan="3">Total estimado</td><td class="monto total" data-testid="total-venta">{{ total() | currency:'PEN':'S/ ':'1.2-2' }}</td><td></td></tr></tfoot>
           </table>
         </div>
         @if (form.controls.detalles.touched && form.controls.detalles.invalid) {

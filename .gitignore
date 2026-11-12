@@ -54,3 +54,5 @@ Thumbs.db
 # Colecciones exportadas de Postman
 /postman/*.json
 /postman/**/*.json
+/playwright-report/
+/test-results/
