@@ -43,13 +43,8 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-# Informes y evidencias locales de las practicas
+# Documentos y evidencias locales
 /docs/
-!/docs/
-/docs/*
-!/docs/s13/
-!/docs/Guia_S13_Autonoma_Paso_a_Paso.*
-!/docs/Checklist_capturas_S13_Autonoma.md
 
 # Colecciones exportadas de Postman
 /postman/*.json
