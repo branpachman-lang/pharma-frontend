@@ -83,10 +83,6 @@ No guardar valores reales en Git, capturas, colecciones ni el informe. `applicat
 
 El compose actual no necesita variables de infraestructura. El puerto 8081 y los volúmenes se configuran en `deploy/docker-compose.yml`. Nginx envía `/api/` al proceso Java del anfitrión por `host.docker.internal:8080` en Docker Desktop. El nombre de dominio y TLS se configuran en Nginx. Las variables del backend de la tabla anterior se aplican al proceso de Java.
 
-## Actividad autónoma S13
-
-Se conserva la carga sin precarga global como decisión basada en las mediciones del informe. MainLayout se descarga al acceder a la zona autenticada. Los errores leen `requestId` del cuerpo o la cabecera `X-Request-Id`. El PDF de entrega está en `PharmaBackend/docs/informe-s13.pdf`. Esta carpeta contiene la [guía paso a paso](docs/Guia_S13_Autonoma_Paso_a_Paso.pdf) y el [inventario de capturas](docs/Checklist_capturas_S13_Autonoma.md).
-
 ## Pruebas de la sesión 14
 
 Usa un entorno de ensayo con Oracle, Redis y la migración V4. La suite crea clientes, productos y ventas sintéticas. El esquema requiere los usuarios `admin_s14`, `vendedor_s14` y `almacen_s14` con sus roles correspondientes. Configura la contraseña sintética compartida en `S14_LAB_LOGIN` en la terminal, y el origen local de la SPA en `S14_BASE_URL`. El origen debe servir la SPA y enrutar `/api/v1` al backend. Carga el volumen de ensayo para poder navegar a la página 5 de Ventas.
