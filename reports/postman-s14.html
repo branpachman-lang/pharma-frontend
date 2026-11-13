@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PharmaSoft S14 | Pruebas de Postman</title>
+<style>
+:root { color-scheme: light; font: 16px/1.55 system-ui, sans-serif; color: #172b42; background: #f5f7fb; }
+body { margin: 0; }
+main { max-width: 76rem; margin: auto; padding: clamp(1rem, 5vw, 4rem); }
+h1 { font-size: clamp(2rem, 4.8vw, 3.1rem); line-height: 1.12; margin: .2rem 0 .9rem; }
+h2 { margin: 0 0 .75rem; font-size: 1.35rem; line-height: 1.3; }
+header p { max-width: 70ch; margin: .6rem 0; }
+.project { font-weight: 700; color: #294f77; }
+nav { display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; margin: 1.6rem 0; padding: .7rem 0; border-block: 1px solid #d4ddeb; }
+a { color: #174a80; text-underline-offset: .2em; }
+a:focus-visible, .table-wrap:focus-visible { outline: 2px solid #174a80; outline-offset: 3px; }
+section { margin: 2rem 0; scroll-margin-top: 1rem; }
+.table-wrap { overflow-x: auto; border: 1px solid #d4ddeb; border-radius: .55rem; background: #fff; }
+table { width: 100%; min-width: 59rem; border-collapse: collapse; table-layout: fixed; font-size: .91rem; }
+th, td { text-align: left; vertical-align: top; padding: .65rem .75rem; border-bottom: 1px solid #e0e7f0; }
+thead { background: #eaf0f8; }
+thead th:first-child { width: 31%; }
+thead th:nth-child(2), thead th:nth-child(3), thead th:nth-child(4), thead th:nth-child(5) { width: 8%; }
+tbody tr:nth-child(even) { background: #f8fafc; }
+tbody tr:last-child > * { border-bottom: 0; }
+code { display: block; margin-top: .2rem; color: #46566b; font-size: .79rem; font-weight: 400; overflow-wrap: anywhere; }
+.http, .attention { display: inline-block; padding: .04rem .42rem; border-radius: .35rem; font-weight: 650; }
+.ok { background: #e1f3e9; color: #13563c; }
+.negative { background: #fff0d9; color: #75400e; }
+.muted { background: #ebeff6; color: #43546b; }
+.attention { background: #fae4e7; color: #892c40; }
+footer { border-top: 1px solid #d4ddeb; margin-top: 2.2rem; padding-top: .85rem; }
+@media print { main { padding: 0; } nav { display: none; } .table-wrap { overflow: visible; } table { min-width: 0; } tr { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+<p class="project">PharmaSoft · Sesión 14</p>
+<h1>Resultados de las pruebas de Postman</h1>
+<p>Resumen de las solicitudes ejecutadas en el laboratorio local el 12 y 13 de noviembre de 2026. Los resultados y las métricas se transcribieron de las comprobaciones registradas durante la práctica.</p>
+<p><strong>23 de 25 solicitudes con resultado manual documentado.</strong> Los dos casos de credenciales incorrectas y auditoría se verificaron en Playwright.</p>
+<p>La columna Aserciones muestra las comprobaciones aprobadas sobre el total visible en Postman. El guion indica que el dato no quedó registrado. Los códigos 403 y 409 corresponden a los rechazos esperados.</p>
+</header>
+<nav aria-label="Secciones"><a href="#sesion">Entorno y sesión</a> <a href="#paginacion">Mediciones de paginación</a> <a href="#venta">Venta y reporte</a> <a href="#auditoria">Auditoría y precio</a> <a href="#rollback">Rollback con producto agotado</a> <a href="#login-fallido">Credenciales incorrectas y bitácora</a></nav>
+<section id="sesion" aria-labelledby="titulo-sesion"><h2 id="titulo-sesion">Entorno y sesión</h2>
+<div class="table-wrap" role="region" aria-label="Entorno y sesión" tabindex="0"><table><thead><tr><th scope="col">Solicitud</th><th scope="col">HTTP</th><th scope="col">Aserciones</th><th scope="col">Tiempo (ms)</th><th scope="col">Tamaño</th><th scope="col">Comprobación</th></tr></thead><tbody>
+<tr><th scope="row">Backend UP<code>GET /actuator/health</code></th><td><span class="http ok">200</span></td><td>—</td><td>—</td><td>—</td><td>El endpoint de salud devolvió status UP.</td></tr>
+<tr><th scope="row">Login ADMIN<code>POST /api/v1/auth/login</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>800</td><td>956 B</td><td>La respuesta incluyó el rol ADMIN.</td></tr>
+<tr><th scope="row">Login VENDEDOR<code>POST /api/v1/auth/login</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>98</td><td>907 B</td><td>La respuesta incluyó el rol VENDEDOR.</td></tr>
+</tbody></table></div></section>
+
+<section id="paginacion" aria-labelledby="titulo-paginacion"><h2 id="titulo-paginacion">Mediciones de paginación</h2>
+<div class="table-wrap" role="region" aria-label="Mediciones de paginación" tabindex="0"><table><thead><tr><th scope="col">Solicitud</th><th scope="col">HTTP</th><th scope="col">Aserciones</th><th scope="col">Tiempo (ms)</th><th scope="col">Tamaño</th><th scope="col">Comprobación</th></tr></thead><tbody>
+<tr><th scope="row">P01-01 Productos 20 filas<code>GET /api/v1/productos?pagina=0&amp;tamanio=20</code></th><td><span class="http ok">200</span></td><td>3/3</td><td>362</td><td>1,07 KB</td><td>Primera página de 20 registros y volumen de al menos 5 000 productos.</td></tr>
+<tr><th scope="row">P01-02 Productos 100 filas<code>GET /api/v1/productos?pagina=0&amp;tamanio=100</code></th><td><span class="http ok">200</span></td><td>3/3</td><td>68</td><td>2,29 KB</td><td>Primera página de 100 registros, el máximo admitido.</td></tr>
+<tr><th scope="row">P01-03 Última página actual<code>GET /api/v1/productos?pagina={{ultima_pagina}}&amp;tamanio=20</code></th><td><span class="http ok">200</span></td><td>3/3</td><td>61</td><td>1,2 KB</td><td>Postman calculó el índice a partir de totalPaginas y comprobó ultima=true.</td></tr>
+<tr><th scope="row">P01-04 Tamaño 500 rechazado<code>GET /api/v1/productos?pagina=0&amp;tamanio=500</code></th><td><span class="http negative">409</span></td><td>2/2</td><td>34</td><td>682 B</td><td>El servidor rechazó el tamaño 500 y devolvió el rango permitido de 1 a 100.</td></tr>
+<tr><th scope="row">P01-05 Ventas por fechas<code>GET /api/v1/ventas/buscar?desde={{desde}}&amp;hasta={{hasta}}&amp;pagina=0&amp;tamanio=10</code></th><td><span class="http ok">200</span></td><td>3/3</td><td>117</td><td>931 B</td><td>Primera página de ventas con el filtro del 1 al 12 de noviembre de 2026.</td></tr>
+<tr><th scope="row">P01-06 Orden rechazado<code>GET /api/v1/productos?pagina=0&amp;tamanio=20&amp;ordenarPor=categoriaNombre</code></th><td><span class="http negative">409</span></td><td>2/2</td><td>30</td><td>658 B</td><td>La API rechazó categoriaNombre como campo de ordenamiento.</td></tr>
+</tbody></table></div></section>
+
+<section id="venta" aria-labelledby="titulo-venta"><h2 id="titulo-venta">Venta y reporte</h2>
+<div class="table-wrap" role="region" aria-label="Venta y reporte" tabindex="0"><table><thead><tr><th scope="col">Solicitud</th><th scope="col">HTTP</th><th scope="col">Aserciones</th><th scope="col">Tiempo (ms)</th><th scope="col">Tamaño</th><th scope="col">Comprobación</th></tr></thead><tbody>
+<tr><th scope="row">I03 Stock antes de la venta en la SPA<code>GET /api/v1/productos/{{producto_id}}</code></th><td><span class="http ok">200</span></td><td>3/3</td><td>56</td><td>689 B</td><td>El producto 5016 tenía 10 unidades antes de confirmar la venta.</td></tr>
+<tr><th scope="row">I03 Consultar comprobante<code>GET /api/v1/ventas/{{venta_id}}</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>—</td><td>—</td><td>La venta 22221 figuró como REGISTRADA, con dos unidades y un total de S/ 25,00.</td></tr>
+<tr><th scope="row">I03 Stock después de la venta<code>GET /api/v1/productos/{{producto_id}}</code></th><td><span class="http ok">200</span></td><td>3/3</td><td>23</td><td>710 B</td><td>La consulta del producto 5016 confirmó el descuento de 10 a 8 unidades.</td></tr>
+<tr><th scope="row">I04 Productos más vendidos<code>GET /api/v1/reportes/productos-mas-vendidos</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>26</td><td>680 B</td><td>El reporte incluyó el producto 5016 con dos unidades vendidas y un importe de S/ 25,00.</td></tr>
+</tbody></table></div></section>
+
+<section id="auditoria" aria-labelledby="titulo-auditoria"><h2 id="titulo-auditoria">Auditoría y precio</h2>
+<div class="table-wrap" role="region" aria-label="Auditoría y precio" tabindex="0"><table><thead><tr><th scope="col">Solicitud</th><th scope="col">HTTP</th><th scope="col">Aserciones</th><th scope="col">Tiempo (ms)</th><th scope="col">Tamaño</th><th scope="col">Comprobación</th></tr></thead><tbody>
+<tr><th scope="row">I05 Evento VENTA_REGISTRADA<code>GET /api/v1/auditoria?accion=VENTA_REGISTRADA&amp;pagina=0&amp;tamanio=100&amp;usuario=vendedor_s14</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>68</td><td>847 B</td><td>El evento identificó la venta 22221 y al vendedor. Su requestId coincidió con el del POST 201.</td></tr>
+<tr><th scope="row">I05 Vendedor recibe 403<code>GET /api/v1/auditoria?accion=VENTA_REGISTRADA&amp;pagina=0&amp;tamanio=20</code></th><td><span class="http negative">403</span></td><td><span class="attention">0/1</span></td><td>37</td><td>696 B</td><td>El HTTP 403 coincide con la denegación esperada. La captura de Postman registra 0/1 aserciones.</td></tr>
+<tr><th scope="row">I06 Detalle con precio nuevo y autor<code>GET /api/v1/productos/{{producto_id}}</code></th><td><span class="http ok">200</span></td><td>3/3</td><td>—</td><td>—</td><td>El producto 5016 devolvió el precio de S/ 15,00, stock 8 y el autor admin_s14.</td></tr>
+<tr><th scope="row">I06 Evento PRECIO_MODIFICADO<code>GET /api/v1/auditoria?accion=PRECIO_MODIFICADO&amp;pagina=0&amp;tamanio=100&amp;usuario=admin_s14</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>22</td><td>809 B</td><td>El evento del producto 5016 registró el cambio de S/ 12,50 a S/ 15,00 y coincidió con el PUT.</td></tr>
+</tbody></table></div></section>
+
+<section id="rollback" aria-labelledby="titulo-rollback"><h2 id="titulo-rollback">Rollback con producto agotado</h2>
+<div class="table-wrap" role="region" aria-label="Rollback con producto agotado" tabindex="0"><table><thead><tr><th scope="col">Solicitud</th><th scope="col">HTTP</th><th scope="col">Aserciones</th><th scope="col">Tiempo (ms)</th><th scope="col">Tamaño</th><th scope="col">Comprobación</th></tr></thead><tbody>
+<tr><th scope="row">01 Anotar stock activo antes<code>GET /api/v1/productos/{{producto_id}}</code></th><td><span class="http ok">200</span></td><td>3/3</td><td>—</td><td>—</td><td>El producto activo 5016 tenía 8 unidades antes del intento.</td></tr>
+<tr><th scope="row">02 Confirmar producto agotado<code>GET /api/v1/productos/{{producto_agotado_id}}</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>—</td><td>—</td><td>El producto 5018 estaba activo y su stock era 0.</td></tr>
+<tr><th scope="row">03 Anotar total de eventos antes<code>GET /api/v1/auditoria?accion=VENTA_REGISTRADA&amp;pagina=0&amp;tamanio=1</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>—</td><td>—</td><td>La bitácora mostraba 5 eventos VENTA_REGISTRADA antes del intento.</td></tr>
+<tr><th scope="row">04 Enviar venta que debe rechazarse con 409<code>POST /api/v1/ventas</code></th><td><span class="http negative">409</span></td><td>2/2</td><td>—</td><td>—</td><td>La API rechazó la venta de dos líneas por falta de stock del producto agotado.</td></tr>
+<tr><th scope="row">05 Confirmar stock intacto<code>GET /api/v1/productos/{{producto_id}}</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>—</td><td>—</td><td>Tras el rechazo, el producto activo conservó sus 8 unidades.</td></tr>
+<tr><th scope="row">06 Confirmar total de eventos intacto<code>GET /api/v1/auditoria?accion=VENTA_REGISTRADA&amp;pagina=0&amp;tamanio=1</code></th><td><span class="http ok">200</span></td><td>2/2</td><td>—</td><td>—</td><td>La bitácora conservó sus 5 eventos VENTA_REGISTRADA.</td></tr>
+</tbody></table></div></section>
+
+<section id="login-fallido" aria-labelledby="titulo-login-fallido"><h2 id="titulo-login-fallido">Credenciales incorrectas y bitácora</h2>
+<div class="table-wrap" role="region" aria-label="Credenciales incorrectas y bitácora" tabindex="0"><table><thead><tr><th scope="col">Solicitud</th><th scope="col">HTTP</th><th scope="col">Aserciones</th><th scope="col">Tiempo (ms)</th><th scope="col">Tamaño</th><th scope="col">Comprobación</th></tr></thead><tbody>
+<tr><th scope="row">01 Login sintético inexistente<code>POST /api/v1/auth/login</code></th><td><span class="http muted">401 previsto</span></td><td>—</td><td>—</td><td>—</td><td>Playwright verificó el HTTP 401 y el mensaje de credenciales incorrectas.</td></tr>
+<tr><th scope="row">02 Evento LOGIN_FALLIDO<code>GET /api/v1/auditoria?accion=LOGIN_FALLIDO&amp;pagina=0&amp;tamanio=20&amp;usuario={{login_fallido_usuario}}</code></th><td><span class="http muted">200 previsto</span></td><td>—</td><td>—</td><td>—</td><td>Playwright verificó el evento LOGIN_FALLIDO y su correspondencia con el identificador del HTTP 401.</td></tr>
+</tbody></table></div></section>
+
+<footer><a href="playwright-s14.html">Ver el HTML de Playwright</a></footer>
+</main>
+</body>
+</html>
