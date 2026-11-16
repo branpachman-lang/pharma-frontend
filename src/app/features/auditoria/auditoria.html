@@ -1,0 +1,67 @@
+<section aria-labelledby="titulo-auditoria">
+  <h2 id="titulo-auditoria">Auditoría</h2>
+
+  <form class="filtros" [formGroup]="form" (ngSubmit)="aplicarFiltros()">
+    <label>Usuario
+      <input type="search" formControlName="usuario" maxlength="50" />
+    </label>
+    <label>Acción
+      <input type="search" formControlName="accion" maxlength="50" placeholder="VENTA_REGISTRADA" />
+    </label>
+    <label>Desde
+      <input type="date" formControlName="desde" />
+    </label>
+    <label>Hasta
+      <input type="date" formControlName="hasta" />
+    </label>
+    <div class="acciones">
+      <button type="submit" class="principal">Buscar</button>
+      <button type="button" (click)="limpiarFiltros()">Limpiar</button>
+    </div>
+  </form>
+
+  @if (errorFiltro(); as mensaje) {
+    <p class="error" role="alert">{{ mensaje }}</p>
+  }
+  @if (error(); as mensaje) {
+    <p class="error" role="alert">{{ mensaje }} <button type="button" (click)="cargar()">Reintentar</button></p>
+  }
+  @if (cargando()) {
+    <p role="status">Cargando eventos de auditoría…</p>
+  }
+  @if (resultado(); as datos) {
+    <div class="tabla-contenedor" role="region" aria-label="Eventos de auditoría" tabindex="0">
+      <table data-testid="tabla-auditoria">
+        <thead>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Acción</th>
+            <th scope="col">Entidad</th>
+            <th scope="col">ID de entidad</th>
+            <th scope="col">Detalle</th>
+            <th scope="col">Request ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (evento of datos.contenido; track evento.id) {
+            <tr>
+              <td><time [attr.datetime]="evento.fecha">{{ evento.fecha | date: 'dd/MM/yyyy HH:mm:ss' }}</time></td>
+              <td>{{ evento.usuario }}</td>
+              <td>{{ evento.accion }}</td>
+              <td>{{ evento.entidad }}</td>
+              <td>{{ evento.entidadId ?? '—' }}</td>
+              <td>{{ evento.detalle ?? '—' }}</td>
+              <td><code>{{ evento.requestId ?? '—' }}</code></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" class="vacio">No hay eventos con estos filtros.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginador [pagina]="datos.pagina" [totalPaginas]="datos.totalPaginas"
+      [totalElementos]="datos.totalElementos" [tamanio]="datos.tamanio" [tamanios]="tamanios"
+      (cambioPagina)="irAPagina($event)" (cambioTamanio)="cambiarTamanio($event)" />
+  }
+</section>
