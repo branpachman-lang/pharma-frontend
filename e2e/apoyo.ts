@@ -1,7 +1,11 @@
 import { expect, type APIRequestContext, type Page, type TestInfo } from '@playwright/test';
 import { writeFile } from 'node:fs/promises';
 
-export const usuarios = { admin: 'admin_s14', vendedor: 'vendedor_s14', almacen: 'almacen_s14' } as const;
+export const usuarios = {
+  admin: process.env['S14_USUARIO_ADMIN'] ?? 'admin_s14',
+  vendedor: process.env['S14_USUARIO_VENDEDOR'] ?? 'vendedor_s14',
+  almacen: process.env['S14_USUARIO_ALMACEN'] ?? 'almacen_s14',
+} as const;
 type Rol = keyof typeof usuarios;
 
 function clave(): string {

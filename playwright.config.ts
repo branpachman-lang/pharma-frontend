@@ -12,6 +12,7 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'test-results/resumen.json' }]],
   use: {
     baseURL,
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
   projects: [{
